@@ -235,8 +235,15 @@ WARN
   }
 }
 
-my $ppm = File::Spec->catfile($Config{bin}, 'ppm.bat');
-unless (-f $ppm) {
+my $has_ppm;
+for my $dir ($Config{bin}, $Config{sitebin}) {
+  my $ppm = File::Spec->catfile($dir, 'ppm');
+  if (-f $ppm or -f "$ppm.bat") {
+    $has_ppm = 1;
+    last;
+  }
+}
+unless ($has_ppm) {
   print <<'WARN';
 
 I could not find the PPM module, used to install packages.

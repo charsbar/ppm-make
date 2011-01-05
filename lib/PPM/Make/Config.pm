@@ -33,6 +33,8 @@ Constant which is true if the platform matches C<MSWin32>.
 
 use constant WIN32 => $^O eq 'MSWin32';
 
+use constant ACTIVEPERL => eval { require ActivePerl::Config; 1 };
+
 my @path_ext = ();
 path_ext() if WIN32;
 
@@ -129,7 +131,7 @@ use base qw(Exporter);
 our (@EXPORT_OK, %EXPORT_TAGS);
 my @exports = qw(check_opts arch_and_os get_cfg_file read_cfg merge_opts
 		 what_have_you fetch_nmake which $ERROR
-		 WIN32 HAS_CPAN HAS_PPM HAS_MB);
+		 WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 %EXPORT_TAGS = (all => [@exports]);
 @EXPORT_OK = (@exports);
 

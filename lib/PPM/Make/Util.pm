@@ -15,7 +15,7 @@ use CPAN::DistnameInfo;
 use File::HomeDir;
 use HTML::Entities qw(encode_entities encode_entities_numeric);
 use File::Spec;
-use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB);
+use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 
 =head1 NAME
 
@@ -87,7 +87,7 @@ my %ap_core = map {$_ => 1} qw(
 			       XML-Parser
 			       XML-Simple  );
 
-if (WIN32 and Win32::BuildNumber > 818) {
+if (WIN32 and ACTIVEPERL and eval { Win32::BuildNumber() > 818 }) {
   $ap_core{'DBI'}++; $ap_core{'DBD-SQLite'}++;
 }
 src_and_build();

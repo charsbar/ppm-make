@@ -1424,8 +1424,12 @@ L<http://cpan.uwinnipeg.ca/dist/PPM-Make>
 =head1 COPYRIGHT
 
 This program is copyright, 2003, 2006, 2008
-by Randy Kobes E<gt>r.kobes@uwinnipeg.caE<lt>.
+by Randy Kobes E<lt>r.kobes@uwinnipeg.caE<gt>.
 It is distributed under the same terms as Perl itself.
+
+=head1 CURRENT MAINTAINER
+
+Kenichi Ishigaki E<lt>ishigaki@cpan.orgE<gt>
 
 =head1 SEE ALSO
 

@@ -11,7 +11,7 @@ use Config;
 use Cwd;
 require File::Spec;
 
-our $VERSION = '0.97';
+our $VERSION = '0.98';
 my $fetch_error;
 
 sub new {

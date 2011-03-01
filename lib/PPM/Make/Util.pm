@@ -33,7 +33,7 @@ This module contains a number of utility functions used by PPM::Make.
 
 =cut
 
-our $VERSION = '0.97';
+our $VERSION = '0.98';
 
 my %encode = ('&' => '&amp;', '>' => '&gt;',
               '<' => '&lt;', '"' => '&quot;');

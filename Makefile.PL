@@ -279,6 +279,8 @@ if ($eu_version > 6.11 ) {
   $opts{NO_META} = 1;
 }
 
+$opts{test} = {TESTS => "t/*.t xt/*.t"} if -d "xt";
+
 WriteMakefile(
               NAME         => 'PPM::Make',
               VERSION_FROM => 'lib/PPM/Make.pm',

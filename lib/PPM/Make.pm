@@ -1037,7 +1037,7 @@ file.
 
 =item no_html =E<gt> 1
 
-If specified, do not not build the html documentation.
+If specified, do not build the html documentation.
 
 =item no_ppm4 =E<gt> 1
 

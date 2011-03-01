@@ -79,20 +79,20 @@ sub has_ppm {
  VERSION: {
     (eval {require PPM;}) and do {
       unless ($@) {
-	$version = 2;
-	last VERSION;
+        $version = 2;
+        last VERSION;
       }
     };
     (eval {require PPM::Config;}) and do {
       unless ($@) {
-	$version = 3;
-	last VERSION;
+        $version = 3;
+        last VERSION;
       }
     };
     (eval {require ActivePerl::PPM;}) and do {
       unless ($@) {
-	$version = 4;
-	last VERSION;
+        $version = 4;
+        last VERSION;
       }
     };
     $version = 'unknown';
@@ -130,8 +130,8 @@ use base qw(Exporter);
 
 our (@EXPORT_OK, %EXPORT_TAGS);
 my @exports = qw(check_opts arch_and_os get_cfg_file read_cfg merge_opts
-		 what_have_you fetch_nmake which $ERROR
-		 WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
+                 what_have_you fetch_nmake which $ERROR
+                 WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 %EXPORT_TAGS = (all => [@exports]);
 @EXPORT_OK = (@exports);
 
@@ -141,7 +141,7 @@ sub check_opts {
     map {$_ => 1} qw(force ignore binary zip_archive remove program cpan
                      dist script exec os arch arch_sub add no_as vs upload
                      no_case no_cfg vsr vsp zipdist no_ppm4 no_html
-		     reps no_upload skip cpan_meta no_remote_lookup);
+                     reps no_upload skip cpan_meta no_remote_lookup);
   foreach (keys %opts) {
     next if $legal{$_};
     warn "Unknown option '$_'\n";
@@ -194,9 +194,9 @@ sub arch_and_os {
     $arch = $Config{archname};
     unless ($opt_noas) {
       if ($] >= 5.008) {
-	my $vstring = sprintf "%vd", $^V;
-	$vstring =~ s/\.\d+$//;
-	$arch .= "-$vstring";
+        my $vstring = sprintf "%vd", $^V;
+        $vstring =~ s/\.\d+$//;
+        $arch .= "-$vstring";
       }
     }
   }
@@ -296,10 +296,10 @@ sub merge_opts {
     my %h = ();
     if (defined $h1->{$_}) {
       if (defined $h2->{$_}) {
-	%h = (%{$h1->{$_}}, %{$h2->{$_}});
+        %h = (%{$h1->{$_}}, %{$h2->{$_}});
       }
       else {
-	%h = %{$h1->{$_}};
+        %h = %{$h1->{$_}};
       }
     }
     else {
@@ -318,7 +318,7 @@ sub what_have_you {
     $has{gzip} = $progs->{gzip};
   }
   elsif ((not WIN32 and 
-	  (not $os or $os =~ /Win32/i or not $arch or $arch =~ /Win32/i))) {
+          (not $os or $os =~ /Win32/i or not $arch or $arch =~ /Win32/i))) {
     $has{tar} = 
       $Config{tar} || which('tar') || $CPAN::Config->{tar};
     $has{gzip} =
@@ -328,9 +328,9 @@ sub what_have_you {
     eval{require Archive::Tar; require Compress::Zlib};
     if ($@) {
       $has{tar} = 
-	$Config{tar} || which('tar') || $CPAN::Config->{tar};
+        $Config{tar} || which('tar') || $CPAN::Config->{tar};
       $has{gzip} =
-	$Config{gzip} || which('gzip') || $CPAN::Config->{gzip};
+        $Config{gzip} || which('gzip') || $CPAN::Config->{gzip};
     }
     else {
       my $atv = mod_version('Archive::Tar');
@@ -340,9 +340,9 @@ sub what_have_you {
       }
       else {
          $has{tar} = 
-	    $Config{tar} || which('tar') || $CPAN::Config->{tar};
+            $Config{tar} || which('tar') || $CPAN::Config->{tar};
           $has{gzip} =
-	    $Config{gzip} || which('gzip') || $CPAN::Config->{gzip};
+            $Config{gzip} || which('gzip') || $CPAN::Config->{gzip};
       }
     }
   }
@@ -355,22 +355,22 @@ sub what_have_you {
     eval{require Archive::Zip; };
     if ($@) {
       $has{zip} = 
-	$Config{zip} || which('zip') || $CPAN::Config->{zip};
+        $Config{zip} || which('zip') || $CPAN::Config->{zip};
       $has{unzip} =
-	$Config{unzip} || which('unzip') || $CPAN::Config->{unzip};
+        $Config{unzip} || which('unzip') || $CPAN::Config->{unzip};
     }
     else {
       my $zipv = mod_version('Archive::Zip');
       if ($zipv >= 1.02) {
-	require Archive::Zip; import Archive::Zip qw(:ERROR_CODES);
-	$has{zip} = 'Archive::Zip';
-	$has{unzip} = 'Archive::Zip';
+        require Archive::Zip; import Archive::Zip qw(:ERROR_CODES);
+        $has{zip} = 'Archive::Zip';
+        $has{unzip} = 'Archive::Zip';
       }
       else {
-	$has{zip} =
-	  $Config{zip} || which('zip') || $CPAN::Config->{zip};
-	$has{unzip} =
-	  $Config{unzip} || which('unzip') || $CPAN::Config->{unzip};
+        $has{zip} =
+          $Config{zip} || which('zip') || $CPAN::Config->{zip};
+        $has{unzip} =
+          $Config{unzip} || which('unzip') || $CPAN::Config->{unzip};
       }
     }
   }
@@ -430,13 +430,13 @@ sub fetch_nmake {
   }
   use File::Copy;
   my $dir = prompt('Which directory on your PATH should I copy the files to?',
-		   $Config{bin});
+                   $Config{bin});
   unless (-d $dir) {
     my $ans = prompt(qq{$dir doesn\'t exist. Create it?}, 'yes');
     if ($ans =~ /^y/i) {
       mkdir $dir or do {
-	$ERROR = "Could not create $dir: $!";
-	return;
+        $ERROR = "Could not create $dir: $!";
+        return;
       };
     }
     else {
@@ -501,7 +501,7 @@ sub which {
     
     if (WIN32) {
       for my $extention (@path_ext) {
-	return "$base.$extention" if -x "$base.$extention";
+        return "$base.$extention" if -x "$base.$extention";
       }
     }
   }

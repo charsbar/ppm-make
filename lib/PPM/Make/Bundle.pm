@@ -47,10 +47,10 @@ sub new {
   my $build_dir = catdir(tmpdir, "ppm_make-$$");
   mkdir $build_dir or die qq{Cannot mkdir $build_dir: $!};
   my $self = {cwd => $cwd, opts => $opts, files => {}, name => '',
-	      build_dir => $build_dir, has => $has, zipdist => $bundle_name,
-	      clean => $clean, arch => $arch, os => $os,
-	      search => $search, no_remote_lookup => $opts->{no_remote_lookup},
-	      };
+              build_dir => $build_dir, has => $has, zipdist => $bundle_name,
+              clean => $clean, arch => $arch, os => $os,
+              search => $search, no_remote_lookup => $opts->{no_remote_lookup},
+              };
   bless $self, $class;
 }
 
@@ -142,8 +142,8 @@ sub from_cpan {
     ($name = $ppm->{ppd}) =~ s{\.ppd$}{};
     (my $ar = $ppm->{codebase}) =~ s{.*/([^/]+)$}{$1};
     $self->{files}->{$name} = {cwd => $ppm->{cwd},
-			       ppd => $ppm->{ppd},
-			       ar => $ar};
+                               ppd => $ppm->{ppd},
+                               ar => $ar};
   }
   else {
     return;
@@ -161,13 +161,13 @@ sub from_cpan {
       my $matches = $search->search(\@prereqs, mode => 'mod');
       if ($matches and (ref($matches) eq 'HASH')) {
         foreach my $mod (keys %$matches) {
-	      my $item = $matches->{$mod};
-	      my $dist_name = $item->{dist_name};
-	      next if is_ap_core($dist_name);
-	      my $cpan_file = cpan_file($item->{cpanid}, $item->{dist_file});
-	      push @{$self->{files}->{$name}->{prereqs}}, 
-	        {dist_name => $dist_name,
-	        cpan_file => $cpan_file};
+              my $item = $matches->{$mod};
+              my $dist_name = $item->{dist_name};
+              next if is_ap_core($dist_name);
+              my $cpan_file = cpan_file($item->{cpanid}, $item->{dist_file});
+              push @{$self->{files}->{$name}->{prereqs}}, 
+                {dist_name => $dist_name,
+                cpan_file => $cpan_file};
         }
       }
     }
@@ -193,18 +193,18 @@ sub from_repository {
     if ($item !~ /^$protocol/) {
       $ppd_remote = catfile($item, $ppd_local);
       if (-f $ppd_remote) {
-	copy($ppd_remote, $ppd_local) or do {
-	  warn qq{Cannot copy "$ppd_remote" to "$ppd_local": $!};
-	  return;
-	};
-	$info = parse_ppd(catfile($cwd, $ppd_local), $arch);
-	next unless ($info and (ref($info) eq 'HASH'));
-	my $info_arch = $info->{ARCHITECTURE}->{NAME};
-	if ($info_arch  and ($info_arch eq $arch)) {
-	  $url = $item;
-	  print qq{\nUsing $ppd_local from $url\n};
-	  last;
-	}
+        copy($ppd_remote, $ppd_local) or do {
+          warn qq{Cannot copy "$ppd_remote" to "$ppd_local": $!};
+          return;
+        };
+        $info = parse_ppd(catfile($cwd, $ppd_local), $arch);
+        next unless ($info and (ref($info) eq 'HASH'));
+        my $info_arch = $info->{ARCHITECTURE}->{NAME};
+        if ($info_arch  and ($info_arch eq $arch)) {
+          $url = $item;
+          print qq{\nUsing $ppd_local from $url\n};
+          last;
+        }
       }
     }
     else {
@@ -212,15 +212,15 @@ sub from_repository {
       my $ppd_remote = $item . $ppd_local;
       if (head($ppd_remote)) {
         if (is_success(getstore($ppd_remote, $ppd_local))) {
-	  $info = parse_ppd(catfile($cwd, $ppd_local), $arch);
-	  next unless ($info and (ref($info) eq 'HASH'));
-	  my $info_arch = $info->{ARCHITECTURE}->{NAME};
-	  if ($info_arch  and ($info_arch eq $arch)) {
-	    $url = $item;
-	    print qq{\nUsing $ppd_local from $url\n};
-	    last;
-	  }
-	}
+          $info = parse_ppd(catfile($cwd, $ppd_local), $arch);
+          next unless ($info and (ref($info) eq 'HASH'));
+          my $info_arch = $info->{ARCHITECTURE}->{NAME};
+          if ($info_arch  and ($info_arch eq $arch)) {
+            $url = $item;
+            print qq{\nUsing $ppd_local from $url\n};
+            last;
+          }
+        }
       }
     }
   }
@@ -237,8 +237,8 @@ sub from_repository {
     my $ar_remote = catfile($url, $codebase);
     if (-f $ar_remote) {
       copy($ar_remote, $ar_local) or do {
-	warn qq{Cannot copy "$ar_remote" to "$ar_local": $!};
-	return;
+        warn qq{Cannot copy "$ar_remote" to "$ar_local": $!};
+        return;
       };
     }
   }
@@ -252,8 +252,8 @@ sub from_repository {
   }
   (my $name = $ppd_local) =~ s{\.ppd$}{};
   $self->{files}->{$name} = {cwd => $cwd,
-			     ppd => $ppd_local,
-			     ar => $ar_local};
+                             ppd => $ppd_local,
+                             ar => $ar_local};
 
   my $deps = $info->{DEPENDENCY};
   return 1 unless ($deps and (ref($deps) eq 'ARRAY'));
@@ -282,18 +282,18 @@ sub fetch_prereqs {
       my $matches = $search->search(\@prereqs, mode => 'mod');
       if ($matches and (ref($matches) eq 'HASH')) {
         foreach my $mod(keys %$matches) {
-	    next if is_ap_core($matches->{$mod}->{dist_name});
-	    print qq{\nFetching prerequisite "$mod"\n};
-	    my $download = $cpan_mirrors[0] . '/authors/id/' . 
-	      $matches->{$mod}->{download};
-	    my $ppm = PPM::Make->new(%{$self->{opts}},
-	        			 no_cfg => 1, dist => $download);
-	    $ppm->make_ppm();
-	    (my $name = $ppm->{ppd}) =~ s{\.ppd$}{};
-	    $self->{files}->{$name} = {cwd => $ppm->{cwd},
-	        			   ppd => $ppm->{ppd},
-		        		   ar => $ppm->{codebase}};
-	    $self->fetch_prereqs($ppm);
+            next if is_ap_core($matches->{$mod}->{dist_name});
+            print qq{\nFetching prerequisite "$mod"\n};
+            my $download = $cpan_mirrors[0] . '/authors/id/' . 
+              $matches->{$mod}->{download};
+            my $ppm = PPM::Make->new(%{$self->{opts}},
+                                         no_cfg => 1, dist => $download);
+            $ppm->make_ppm();
+            (my $name = $ppm->{ppd}) =~ s{\.ppd$}{};
+            $self->{files}->{$name} = {cwd => $ppm->{cwd},
+                                           ppd => $ppm->{ppd},
+                                           ar => $ppm->{codebase}};
+            $self->fetch_prereqs($ppm);
         }
       }
     }
@@ -364,7 +364,7 @@ END
     foreach (sort keys %contents) {
       print "Adding $contents{$_}\n";
       unless ($arc->addFile($_, $contents{$_})) {
-	die "Failed to add $_";
+        die "Failed to add $_";
       }
     }
     die "Writing to $zipdist failed" 

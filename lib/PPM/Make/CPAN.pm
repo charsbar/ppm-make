@@ -9,7 +9,7 @@ our $VERSION = '0.97';
 sub new {
   my ($class, %opts) = @_;
   my $self = {cpan_meta => $opts{cpan_meta},
-	      opts => \%opts};
+              opts => \%opts};
   bless $self, $class;
 }
 

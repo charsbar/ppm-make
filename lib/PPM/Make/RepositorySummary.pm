@@ -23,38 +23,38 @@ sub new {
 
   my $no_ppm4 = $args{no_ppm4};
   my $fhs = {
-	     summary => {file => 'summary.ppm',
-			fh => undef,
-			start => \&summary_start,
-			softpkg => \&summary_softpkg,
-			end => \&summary_end,
-			},
-	     searchsummary => {file => 'searchsummary.ppm',
-			       fh => undef,
-			       start => \&searchsummary_start,
-			       softpkg => \&searchsummary_softpkg,
-			       end => \&searchsummary_end,
-			},
-	     package_lst => {file => 'package.lst',
-			     fh => undef,
-			     start => \&package_lst_start,
-			     softpkg => \&package_lst_softpkg,
-			     end => \&package_lst_end,
-			    },
-	    };
+             summary => {file => 'summary.ppm',
+                         fh => undef,
+                         start => \&summary_start,
+                         softpkg => \&summary_softpkg,
+                         end => \&summary_end,
+                        },
+             searchsummary => {file => 'searchsummary.ppm',
+                               fh => undef,
+                               start => \&searchsummary_start,
+                               softpkg => \&searchsummary_softpkg,
+                               end => \&searchsummary_end,
+                        },
+             package_lst => {file => 'package.lst',
+                             fh => undef,
+                             start => \&package_lst_start,
+                             softpkg => \&package_lst_softpkg,
+                             end => \&package_lst_end,
+                            },
+            };
   unless ($no_ppm4) {
     $fhs->{package_xml} = {file => 'package.xml',
-			   fh => undef,
-			   start => \&package_xml_start,
-			   softpkg => \&package_xml_softpkg,
-			   end => \&package_xml_end,
-			  };
+                           fh => undef,
+                           start => \&package_xml_start,
+                           softpkg => \&package_xml_softpkg,
+                           end => \&package_xml_end,
+                          };
   };
   my $self = {rep => $rep,
               ppds => \@ppds,
-	      no_ppm4 => $no_ppm4,
-	      arch => $args{arch},
-	      fhs => $fhs,
+              no_ppm4 => $no_ppm4,
+              arch => $args{arch},
+              fhs => $fhs,
              };
   bless $self, $class;
 }
@@ -231,7 +231,7 @@ END
     my $deps = $item->{DEPENDENCY};
     if (defined $deps and (ref($deps) eq 'ARRAY')) {
       foreach my $dep (@$deps) {
-	print $fh <<"END";
+        print $fh <<"END";
       <DEPENDENCY NAME="$dep->{NAME}" VERSION="$dep->{VERSION}" />
 END
       }
@@ -245,10 +245,10 @@ END
     if (my $script = $item->{INSTALL}->{SCRIPT}) {
       my $install = 'INSTALL';
       if (my $exec = $item->{INSTALL}->{EXEC}) {
-	$install .= qq{ EXEC="$exec"};
+        $install .= qq{ EXEC="$exec"};
       }
       if (my $href = $item->{INSTALL}->{HREF}) {
-	$install .= qq{ HREF="$href"};
+        $install .= qq{ HREF="$href"};
       }
       print $fh qq{      <$install>$script</INSTALL>\n};
     }
@@ -288,10 +288,10 @@ END
     if (my $script = $item->{INSTALL}->{SCRIPT}) {
       my $install = 'INSTALL';
       if (my $exec = $item->{INSTALL}->{EXEC}) {
-	$install .= qq{ EXEC="$exec"};
+        $install .= qq{ EXEC="$exec"};
       }
       if (my $href = $item->{INSTALL}->{HREF}) {
-	$install .= qq{ HREF="$href"};
+        $install .= qq{ HREF="$href"};
       }
       print $fh qq{      <$install>$script</INSTALL>\n};
     }
@@ -307,12 +307,12 @@ END
     my $provide = $item->{PROVIDE};
     if ($provide and (ref($provide) eq 'ARRAY')) {
       foreach my $mod(@$provide) {
-	my $string = qq{$sp<PROVIDE NAME="$mod->{NAME}"};
-	if ($mod->{VERSION}) {
-	  $string .= qq{ VERSION="$mod->{VERSION}"};
-	}
-	$string .= qq{ />\n};
-	print $fh $string;
+        my $string = qq{$sp<PROVIDE NAME="$mod->{NAME}"};
+        if ($mod->{VERSION}) {
+          $string .= qq{ VERSION="$mod->{VERSION}"};
+        }
+        $string .= qq{ />\n};
+        print $fh $string;
       }
     }
 
@@ -323,7 +323,7 @@ END
 #      my $p_version = ppd2cpan_version($dep->{VERSION});
 #      print $fh 
 #      qq{    <REQUIRE NAME="$dep->{NAME}" VERSION="$p_version" />\n};
-	print $fh qq{$sp<REQUIRE NAME="$dep->{NAME}" />\n};
+        print $fh qq{$sp<REQUIRE NAME="$dep->{NAME}" />\n};
       }
     }
     if ($size > 1) {

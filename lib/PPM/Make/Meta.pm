@@ -20,7 +20,7 @@ sub new {
   die qq{Please supply a PPM::Make::Search object}
     unless (defined $search and (ref($search) eq 'PPM::Make::Search'));
   my $self = {info => {}, cwd => $cwd,
-	      search => $search, no_remote_lookup => $no_remote_lookup};
+              search => $search, no_remote_lookup => $no_remote_lookup};
   bless $self, $class;
 }
 
@@ -244,7 +244,7 @@ sub guess_abstract {
       $guess = $info->{NAME} . ".$ext";
     }
     finddepth(sub{$_ eq $guess && ($hit = $File::Find::name) 
-		    && ($hit !~ m!blib/!)}, $cwd);
+                    && ($hit !~ m!blib/!)}, $cwd);
     next unless ($hit and -f $hit);
     print "Trying to get ABSTRACT from $hit ...\n";
     $result = parse_abstract($info->{NAME}, $hit);
@@ -255,13 +255,13 @@ sub guess_abstract {
     my $mod_results = $search->{mod_results};
     if (defined $mod_results and defined $mod_results->{$try}) {
       return $mod_results->{$try}->{mod_abs}
-	       if defined $mod_results->{$try}->{mod_abs};
+               if defined $mod_results->{$try}->{mod_abs};
     }
     if ($search->search($try, mode => 'mod')) {
       $mod_results = $search->{mod_results};
       if (defined $mod_results and defined $mod_results->{$try}) {
         return $mod_results->{$try}->{mod_abs}
-	        if defined $mod_results->{$try}->{mod_abs};
+                if defined $mod_results->{$try}->{mod_abs};
       }
     }
     else {
@@ -273,13 +273,13 @@ sub guess_abstract {
     my $dist_results = $search->{dist_results};
     if (defined $dist_results and defined $dist_results->{$try}) {
       return $dist_results->{$try}->{dist_abs}
-	    if defined $dist_results->{$try}->{dist_abs};
+            if defined $dist_results->{$try}->{dist_abs};
     }
     if ($search->search($try, mode => 'dist')) {
       $dist_results = $search->{dist_results};
       if (defined $dist_results and defined $dist_results->{$try}) {
-	    return $dist_results->{$try}->{dist_abs}
-	      if defined $dist_results->{$try}->{dist_abs};
+            return $dist_results->{$try}->{dist_abs}
+              if defined $dist_results->{$try}->{dist_abs};
       }
     }
     else {
@@ -325,7 +325,7 @@ sub guess_bundle {
       $guess = $info->{NAME} . ".$ext";
     }
     finddepth(sub{$_ eq $guess && ($hit !~ m!blib/!)
-		    && ($hit = $File::Find::name) }, $cwd);
+                    && ($hit = $File::Find::name) }, $cwd);
     next unless (-f $hit);
     print "Trying to get Bundle/Task info from $hit ...\n";
     $result = parse_bundle($hit);
@@ -380,13 +380,13 @@ sub guess_author {
     my $mod_results = $search->{mod_results};
     if (defined $mod_results and defined $mod_results->{$try}) {
       return $mod_results->{$try}->{author}
-	if defined $mod_results->{$try}->{author};
+        if defined $mod_results->{$try}->{author};
     }
     if ($search->search($try, mode => 'mod')) {
       $mod_results = $search->{mod_results};
       if (defined $mod_results and defined $mod_results->{$try}) {
-	return $mod_results->{$try}->{author}
-	  if defined $mod_results->{$try}->{author};
+        return $mod_results->{$try}->{author}
+          if defined $mod_results->{$try}->{author};
       }
     }
     else {
@@ -398,13 +398,13 @@ sub guess_author {
     my $dist_results = $search->{dist_results};
     if (defined $dist_results and defined $dist_results->{$try}) {
       return $dist_results->{$try}->{author}
-	if defined $dist_results->{$try}->{author};
+        if defined $dist_results->{$try}->{author};
     }
     if ($search->search($try, mode => 'dist')) {
       $dist_results = $search->{dist_results};
       if (defined $dist_results and defined $dist_results->{$try}) {
-	return $dist_results->{$try}->{author}
-	  if defined $dist_results->{$try}->{author};
+        return $dist_results->{$try}->{author}
+          if defined $dist_results->{$try}->{author};
       }
     }
     else {

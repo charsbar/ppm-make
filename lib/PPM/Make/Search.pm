@@ -18,12 +18,12 @@ my $meta = 'http://cpan.uwinnipeg.ca/meta/';
 sub new {
   my $class = shift;
   my $self = {query => undef,
-	      args => {},
-	      todo => [],
-	      mod_results => {},
-	      dist_results => {},
-	      dist_id => {},
-	     };
+              args => {},
+              todo => [],
+              mod_results => {},
+              dist_results => {},
+              dist_id => {},
+             };
   my $soap;
   eval {require SOAP::Lite;};
   unless ($@) {
@@ -42,14 +42,14 @@ sub make_info_soap {
   return SOAP::Lite
     ->uri($info_uri)
       ->proxy($info_proxy,
-	      options => {compress_threshold => 10000})
-	->on_fault(sub { my($soap, $res) = @_; 
-			 warn "SOAP Fault: ", 
+              options => {compress_threshold => 10000})
+        ->on_fault(sub { my($soap, $res) = @_; 
+                         warn "SOAP Fault: ", 
                            (ref $res ? $res->faultstring 
                             : $soap->transport->status),
                               "\n";
                          return undef;
-		       });
+                       });
 }
 
 sub search {
@@ -196,7 +196,7 @@ sub ppd_mod_search {
       my $provide = $d->{PROVIDE};
       foreach my $item (@$provide) {
         if ($item->{NAME} eq $mod) {
-	      $info->{mod_name} = $item->{NAME};
+              $info->{mod_name} = $item->{NAME};
           $info->{mod_vers} = $item->{VERSION};
         }
       }
@@ -256,7 +256,7 @@ sub soap_mod_search {
       $info->{dist_file} = $prefix . '/' . $info->{dist_file};
       $self->{mod_results}->{$entry} = $info;
       $self->{dist_id}->{$info->{dist_name}} ||=
-	check_id($info->{dist_file});
+        check_id($info->{dist_file});
     }
   }
   else {
@@ -304,7 +304,7 @@ sub cpan_dist_search {
   foreach my $d (@dists) {  
     my $query = $dist_id->{$d}
       || $self->guess_dist_from_mod($d)
-	|| $self->dist_from_re($d);
+        || $self->dist_from_re($d);
     unless (defined $query) {
       push @todo, $d;
       next;
@@ -343,16 +343,16 @@ sub cpan_dist_search {
       my $module = CPAN::Shell->expand('Module', $mod);
       next unless $module;
       if ($mod eq $try) {
-	my $desc = $module->description;
-	$dists->{dist_abs} = $desc if $desc;
+        my $desc = $module->description;
+        $dists->{dist_abs} = $desc if $desc;
       }
       my $v = $module->cpan_version;
       $v = undef if $v eq 'undef';
       if ($v) {
-	push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
+        push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
       }
       else {
-	push @{$dists->{mods}}, {mod_name => $mod};	
+        push @{$dists->{mods}}, {mod_name => $mod};        
       }
     }
     $self->{dist_results}->{$dist} = $dists;
@@ -411,17 +411,17 @@ sub meta_dist_search {
       my $module = $cpan_meta->instance('Module', $mod);
       next unless $module;
       if ($mod eq $try) {
-	my $desc = $module->description;
-	$dists->{dist_abs} = $desc if $desc;
+        my $desc = $module->description;
+        $dists->{dist_abs} = $desc if $desc;
       }
       my $v = $module->cpan_version;
       $v = undef if $v eq 'undef';
       my $dist_name = file_to_dist($mod->cpan_file);
       if ($v) {
-	push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
+        push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
       }
       else {
-	push @{$dists->{mods}}, {mod_name => $mod};	
+        push @{$dists->{mods}}, {mod_name => $mod};        
       }
     }
     $self->{dist_results}->{$dist} = $dists;
@@ -462,10 +462,10 @@ sub ppd_dist_search {
       my $v = $item->{VERSION};
       my $mod = $item->{NAME};
       if (defined $v) {
-	push @{$info->{mods}}, {mod_name => $mod, mod_vers => $v};
+        push @{$info->{mods}}, {mod_name => $mod, mod_vers => $v};
       }
       else {
-	push @{$info->{mods}}, {mod_name => $mod};	
+        push @{$info->{mods}}, {mod_name => $mod};        
       }
     }
     $self->{dist_results}->{$dist} = $info;
@@ -509,7 +509,7 @@ sub soap_dist_search {
       $info->{dist_file} = $prefix . '/' . $info->{dist_file};
       $self->{dist_results}->{$entry} = $info;
       $self->{dist_id}->{$info->{dist_name}} ||=
-	check_id($info->{dist_file});
+        check_id($info->{dist_file});
     }
   }
   else {

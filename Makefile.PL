@@ -8,18 +8,18 @@ require File::Spec;
 use constant WIN32 => $^O eq 'MSWin32';
 
 my %prereqs = ('Pod::Find' => 0.23,
-	       'File::Spec' => 0,
-	       'LWP' => 0,
-	       'YAML' => 0,
-	       'XML::Parser' => 2,
-           'Getopt::Long' => 2.33,
-	       'Config::IniFiles' => 0,
-           'Pod::Usage' => 1,
-           'CPAN::DistnameInfo' => 0,
-	       'File::HomeDir' => 0.52,
-           'HTML::Entities' => 0,
-           'version'  => 0,
-	       );
+               'File::Spec' => 0,
+               'LWP' => 0,
+               'YAML' => 0,
+               'XML::Parser' => 2,
+               'Getopt::Long' => 2.33,
+               'Config::IniFiles' => 0,
+               'Pod::Usage' => 1,
+               'CPAN::DistnameInfo' => 0,
+               'File::HomeDir' => 0.52,
+               'HTML::Entities' => 0,
+               'version'  => 0,
+               );
 
 my $home = $ENV{HOME};
 my $has_myconfig = 0;
@@ -284,9 +284,9 @@ WriteMakefile(
               VERSION_FROM => 'lib/PPM/Make.pm',
               EXE_FILES    => [@exe_files],
               dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'},
-	      PREREQ_PM    => \%prereqs,
-	      %opts,
-	     );
+              PREREQ_PM    => \%prereqs,
+              %opts,
+             );
 
 sub path_ext {
   if ($ENV{PATHEXT}) {
@@ -326,7 +326,7 @@ sub which {
 
     if (WIN32) {
       for my $ext (@path_ext) {
-	return "$base.$ext" if -x "$base.$ext";
+        return "$base.$ext" if -x "$base.$ext";
       }
     }
   }
@@ -357,13 +357,13 @@ sub fetch_nmake {
   }
   use File::Copy;
   my $dir = prompt('Which directory on your PATH should I copy the files to?',
-		   $Config{bin});
+                   $Config{bin});
   unless (-d $dir) {
     my $ans = prompt(qq{$dir doesn\'t exist. Create it?}, 'yes');
     if ($ans =~ /^y/i) {
       mkdir $dir or do {
-	warn "Could not create $dir: $!";
-	return;
+        warn "Could not create $dir: $!";
+        return;
       };
     }
     else {

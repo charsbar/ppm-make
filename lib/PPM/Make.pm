@@ -36,14 +36,14 @@ sub new {
 
   my ($arch, $os) = arch_and_os($opts{arch}, $opts{os}, $opts{noas});
   my $has = what_have_you($opts{program}, $arch, $os);
-  
+
   my %cfg;
 #  $opts{no_cfg} = 1 if $opts{install};
   unless ($opts{no_cfg}) {
     if (my $file = get_cfg_file()) {
       %cfg = read_cfg($file, $arch) or die "\nError reading config file";
     }
-  }  
+  }
   my $opts = %cfg ? merge_opts(\%cfg, \%opts) : \%opts;
 
   $no_case = 1 if defined $opts->{no_case};
@@ -56,10 +56,10 @@ sub new {
               ppd => '',
               archive => '',
               zip => '',
-          prereq_pm => {},
+              prereq_pm => {},
               file => '',
               version => '',
-          use_mb => '',
+              use_mb => '',
               ARCHITECTURE => $arch,
               OS => $os,
               cpan_meta => $opts->{cpan_meta},
@@ -73,8 +73,8 @@ sub new {
 sub make_ppm {
   my $self = shift;
   die 'No software available to make a zip archive'
-     if ( ($self->{opts}->{zip_archive} or $self->{opts}->{zipdist})
-         and not $self->{has}->{zip});
+    if ( ($self->{opts}->{zip_archive} or $self->{opts}->{zipdist})
+        and not $self->{has}->{zip});
   my $dist = $self->{opts}->{dist};
   if ($dist) {
     my $build_dir = File::Spec->tmpdir;
@@ -181,7 +181,7 @@ sub extract_dist {
       rmtree("$build_dir/$name", 1, 0) 
           or die "rmtree of $name failed: $!";
   }
- EXTRACT: {
+  EXTRACT: {
     if ($suffix eq '.zip') {
       ($unzip eq 'Archive::Zip') && do {
         my $arc = Archive::Zip->new();
@@ -299,8 +299,8 @@ sub make_html {
   }
   my %pods = pod_find({-verbose => 1}, "$cwd/blib/");
   if (-d "$cwd/blib/script/") {
-    finddepth( sub 
-               {$pods{$File::Find::name} = 
+    finddepth( sub {
+                $pods{$File::Find::name} = 
                   "script::" . basename($File::Find::name) 
                     if (-f $_ and not /\.bat$/ and contains_pod($_));
               }, "$cwd/blib/script");
@@ -323,10 +323,10 @@ sub make_html {
         or die "Couldn't mkdir $fulldir: $!";  
     }
     ($outfile = File::Spec->catfile($fulldir, $outfile)) =~ s!\\!/!g;
-    
+
     my $htmlroot = "$path2root/site/lib";
     my $podroot = "$cwd/blib";
-    my $podpath = join ":" => map { $podroot . '/' . $_ }  
+    my $podpath = join ":" => map { $podroot . '/' . $_ }
       ($isbin ? qw(bin lib) : qw(lib));
     (my $package = $pods{$pod}) =~ s!^(lib|script)::!!;
     my $abstract = parse_abstract($package, $infile);
@@ -363,7 +363,7 @@ sub make_dist {
   }
 
   $name .= "-$self->{version}" 
-      if ( ($self->{opts}->{vs} or $self->{opts}->{vsr}) and $self->{version});
+    if ( ($self->{opts}->{vs} or $self->{opts}->{vsr}) and $self->{version});
 
   my $is_Win32 = (not $self->{OS} or $self->{OS} =~ /Win32/i 
                   or not $self->{ARCHITECTURE} or
@@ -382,19 +382,19 @@ sub make_dist {
 #  }
   unlink $arc if (-e $arc);
 
- DIST: {
+  DIST: {
     ($tar eq 'Archive::Tar' and not $force_zip) && do {
       $name .= '.tar.gz';
       my @f;
       my $arc = Archive::Tar->new();
       if ($is_Win32) {
-          finddepth(sub { push @f, $File::Find::name
-                              unless $File::Find::name =~ m!blib/man\d!;
-                          print $File::Find::name,"\n"}, 'blib');
+        finddepth(sub { push @f, $File::Find::name
+                          unless $File::Find::name =~ m!blib/man\d!;
+                        print $File::Find::name,"\n"}, 'blib');
       }
       else {
-        finddepth(sub {push @f, $File::Find::name; 
-                       print $File::Find::name,"\n"}, 'blib');
+        finddepth(sub { push @f, $File::Find::name; 
+                        print $File::Find::name,"\n"}, 'blib');
       }
       if ($script and not $script_is_external) {
         push @f, $script;
@@ -414,8 +414,8 @@ sub make_dist {
 
       if ($is_Win32) {
         my @f;
-        finddepth(sub { 
-                       push @f, $File::Find::name
+        finddepth(sub {
+                        push @f, $File::Find::name
                           if $File::Find::name =~ m!blib/man\d!;},
                              'blib');
         for (@f) {
@@ -453,7 +453,7 @@ sub make_dist {
       }
       if ($script and not $script_is_external) {
         die "zip of $script failed"
-           unless $arc->addFile($script, $script);
+          unless $arc->addFile($script, $script);
         print "$script\n";
       }
       if (@files) {
@@ -480,14 +480,14 @@ sub make_dist {
       if ($is_Win32) {
         my @f;
         finddepth(sub {
-                       push @f, $File::Find::name
+                        push @f, $File::Find::name
                           unless $File::Find::name =~ m!blib/man\d!;},
                              'blib');
         for (@f) {
           push @args, "-x", $_;
         }
       }
-      
+
       print "@args\n";
       system(@args) == 0 or die "@args failed: $?";
       last DIST;
@@ -521,7 +521,7 @@ sub make_ppd {
   my $os = $self->{OS};
   my $arch = $self->{ARCHITECTURE};
   my $d;
-  
+
   $d->{SOFTPKG}->{NAME} = $d->{TITLE} = $name;
   $d->{SOFTPKG}->{VERSION} = cpan2ppd_version($self->{version} || 0);
   $d->{OS}->{NAME} = $os if $os;
@@ -554,13 +554,13 @@ sub make_ppd {
       my $mods = $search->{dist_results}->{$name}->{mods};
       if ($mods and (ref($mods) eq 'ARRAY')) {
         foreach my $mod (@$mods) {
-              my $mod_name = $mod->{mod_name};
-              next unless $mod_name;
-              my $mod_vers = $mod->{mod_vers};
-              if ($] < 5.10) {
-                $mod_name .= '::' unless ($mod_name =~ /::/);
-              }
-              push @{$d->{PROVIDE}}, {NAME => $mod_name, VERSION => $mod_vers};
+          my $mod_name = $mod->{mod_name};
+          next unless $mod_name;
+          my $mod_vers = $mod->{mod_vers};
+          if ($] < 5.10) {
+            $mod_name .= '::' unless ($mod_name =~ /::/);
+          }
+          push @{$d->{PROVIDE}}, {NAME => $mod_name, VERSION => $mod_vers};
         }
       }
     }
@@ -583,15 +583,15 @@ sub make_ppd {
         my $matches = $search->{mod_results};
         if ($matches and ref($matches) eq 'HASH') {
           foreach my $dp(keys %$matches) {
-                next unless $deps{$dp};
-                my $results = $matches->{$dp};
-                next unless (defined $results and defined $results->{mod_name});
-                my $dist = $results->{dist_name};
-                next if (not $dist or $dist =~ m!^perl$!
-                       or $dist =~ m!^Test! or is_ap_core($dist));
-                $self->{prereq_pm}->{$dist} = 
-                  $d->{DEPENDENCY}->{$dist} = 
-                    cpan2ppd_version($args->{PREREQ_PM}->{$dp} || 0);
+            next unless $deps{$dp};
+            my $results = $matches->{$dp};
+            next unless (defined $results and defined $results->{mod_name});
+            my $dist = $results->{dist_name};
+            next if (not $dist or $dist =~ m!^perl$!
+                      or $dist =~ m!^Test! or is_ap_core($dist));
+            $self->{prereq_pm}->{$dist} = 
+              $d->{DEPENDENCY}->{$dist} = 
+                cpan2ppd_version($args->{PREREQ_PM}->{$dp} || 0);
           }
         }
         else {
@@ -713,37 +713,37 @@ END
   my $copy = $local ? File::Spec::Unix->catfile($path, $archive) : $archive;
   print qq{\nCreating $zipdist ...\n};
   if ($zip eq 'Archive::Zip') {
-      my %contents = ($ppd_zip => $ppd,
-                      $archive => $copy,
-                      $readme => 'README');
-      my $arc = Archive::Zip->new();
-      foreach (keys %contents) {
-          print "Adding $_ as $contents{$_}\n";
-          unless ($arc->addFile($_, $contents{$_})) {
-              die "Failed to add $_";
-          }
+    my %contents = ($ppd_zip => $ppd,
+                    $archive => $copy,
+                    $readme => 'README');
+    my $arc = Archive::Zip->new();
+    foreach (keys %contents) {
+      print "Adding $_ as $contents{$_}\n";
+      unless ($arc->addFile($_, $contents{$_})) {
+        die "Failed to add $_";
       }
-      die "Writing to $zipdist failed" 
-          unless $arc->writeToFileNamed($zipdist) == Archive::Zip::AZ_OK();
+    }
+    die "Writing to $zipdist failed" 
+      unless $arc->writeToFileNamed($zipdist) == Archive::Zip::AZ_OK();
   }
   else {
-      if ($path and $local) {
-          unless (-d $path) {
-              mkpath($path, 1, 0777) or die "Cannot mkpath $path: $!";
-          }
-          copy($archive, $copy) or die "Cannot cp $archive to $copy: $!";
+    if ($path and $local) {
+      unless (-d $path) {
+        mkpath($path, 1, 0777) or die "Cannot mkpath $path: $!";
       }
-      rename($ppd, "$ppd.tmp") or die "Cannnot rename $ppd to $ppd.tmp: $!";
-      rename($ppd_zip, $ppd) or die "Cannnot rename $ppd_zip to $ppd: $!";
-      
-      my @args = ($zip, $zipdist, $ppd, $copy, $readme);
-      print "@args\n";
-      system(@args) == 0 or die "@args failed: $?";
-      rename($ppd, $ppd_zip) or die "Cannnot rename $ppd to $ppd_zip: $!";
-      rename("$ppd.tmp", $ppd) or die "Cannnot rename $ppd.tmp to $ppd: $!";
-      if ($path and $local and -d $path) {
-          rmtree($path, 1, 1) or warn "Cannot rmtree $path: $!";
-      }
+      copy($archive, $copy) or die "Cannot cp $archive to $copy: $!";
+    }
+    rename($ppd, "$ppd.tmp") or die "Cannnot rename $ppd to $ppd.tmp: $!";
+    rename($ppd_zip, $ppd) or die "Cannnot rename $ppd_zip to $ppd: $!";
+
+    my @args = ($zip, $zipdist, $ppd, $copy, $readme);
+    print "@args\n";
+    system(@args) == 0 or die "@args failed: $?";
+    rename($ppd, $ppd_zip) or die "Cannnot rename $ppd to $ppd_zip: $!";
+    rename("$ppd.tmp", $ppd) or die "Cannnot rename $ppd.tmp to $ppd: $!";
+    if ($path and $local and -d $path) {
+      rmtree($path, 1, 1) or warn "Cannot rmtree $path: $!";
+    }
   }
   $self->{zip} = $zipdist;
   unlink $readme;
@@ -833,7 +833,7 @@ sub upload_ppm {
     copy($ppd, "$ppd_loc/$ppd") 
       or die "Cannot copy $ppd to $ppd_loc: $!";
     unless (-d $ar_loc) {
-        mkdir $ar_loc or die "Cannot mkdir $ar_loc: $!";
+      mkdir $ar_loc or die "Cannot mkdir $ar_loc: $!";
     }
     copy($archive, "$ar_loc/$archive") 
       or die "Cannot copy $archive to $ar_loc: $!";
@@ -881,7 +881,7 @@ sub fetch_file {
     unless ($results) {
       $mod =~ s!::!-!g;
       if ($search->search($mod, mode => 'dist')) {
-            $results = $search->{dist_results}->{$mod};
+        $results = $search->{dist_results}->{$mod};
       }
     }
     unless ($results->{cpanid} and $results->{dist_file}) {

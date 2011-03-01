@@ -1,0 +1,9 @@
+xt
+blib
+pm_to_blib
+.git
+(^|/).svn
+.old$
+.bak$
+Makefile
+MANIFEST.SKIP

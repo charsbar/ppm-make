@@ -50,7 +50,7 @@ sub meta {
 sub parse_build {
   my $self = shift;
   my $bp = '_build/build_params';
-#  open(my $fh, $bp) or die "Couldn't open $bp: $!";
+#  open(my $fh, '<', $bp) or die "Couldn't open $bp: $!";
 #  my @lines = <$fh>;
 #  close $fh;
 #  my $content = join "\n", @lines;
@@ -108,7 +108,7 @@ sub parse_yaml {
 
 sub parse_makepl {
   my $self = shift;
-  open(my $fh, 'Makefile.PL') or die "Couldn't open Makefile.PL: $!";
+  open(my $fh, '<', 'Makefile.PL') or die "Couldn't open Makefile.PL: $!";
   my @lines = <$fh>;
   close $fh;
   my $makeargs;
@@ -144,7 +144,7 @@ sub parse_make {
                   VERSION VERSION_FROM PREREQ_PM);
   my $re = join '|', @wanted;
   my @lines;
-  open(my $fh, 'Makefile') or die "Couldn't open Makefile: $!";
+  open(my $fh, '<', 'Makefile') or die "Couldn't open Makefile: $!";
   while (<$fh>) {
     if (not $flag and /MakeMaker Parameters/) {
       $flag = 1;
@@ -339,7 +339,7 @@ sub parse_bundle {
   my @result;
   local $/ = "\n";
   my $in_cont = 0;
-  open(my $fh, $file) or die "Couldn't open $file: $!";
+  open(my $fh, '<', $file) or die "Couldn't open $file: $!";
   while (<$fh>) {
     $in_cont = m/^=(?!head1\s+CONTENTS)/ ? 0 :
       m/^=head1\s+CONTENTS/ ? 1 : $in_cont;

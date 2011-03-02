@@ -15,7 +15,7 @@ sub new {
     unless $rep;
   die qq{The given repository directory "$rep" does not exist}
     unless -d $rep;
-  opendir(my $dir, $rep) or die "Cannot opendir $rep: $!";
+  opendir(my $dir, '<', $rep) or die "Cannot opendir $rep: $!";
   my @ppds = sort {lc $a cmp lc $b} grep {$_ =~ /\.ppd$/} readdir $dir;
   closedir($dir);
   die qq{The repository directory "$rep" contains no ppd files}

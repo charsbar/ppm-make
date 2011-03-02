@@ -131,7 +131,7 @@ Loads a CHECKSUMS file into $cksum
 
 sub load_cs {
   my $cs = shift;
-  open(my $fh, $cs);
+  open(my $fh, '<', $cs);
   unless ($fh) {
     $ERROR = qq{Could not open "$cs": $!};
     return;
@@ -161,7 +161,7 @@ Verify a CHECKSUM for a $file
 sub verifyMD5 {
   my ($cksum, $file) = @_;
   my ($is, $should);
-  open (my $fh, $file);
+  open (my $fh, '<', $file);
   unless ($fh) {
     $ERROR = qq{Cannot open "$file": $!};
     return;
@@ -583,7 +583,7 @@ sub parse_version {
   my $version;
   local $/ = "\n";
   my $fh;
-  unless (open($fh, $parsefile)) {
+  unless (open($fh, '<', $parsefile)) {
     $ERROR = "Could not open '$parsefile': $!";
     return;
   }
@@ -630,7 +630,7 @@ sub parse_abstract {
   (my $trans = $package) =~ s!-!::!g;
   my $result;
   my $inpod = 0;
-  open(my $fh, $file) or die "Couldn't open $file: $!";
+  open(my $fh, '<', $file) or die "Couldn't open $file: $!";
   while (<$fh>) {
     $inpod = /^=(?!cut)/ ? 1 : /^=cut/ ? 0 : $inpod;
     next if !$inpod;

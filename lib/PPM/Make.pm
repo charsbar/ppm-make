@@ -610,7 +610,7 @@ sub make_ppd {
 
 sub print_ppd {
   my ($self, $d, $fn) = @_;
-  open (my $fh, ">$fn") or die "Couldn't write to $fn: $!";
+  open (my $fh, '>', $fn) or die "Couldn't write to $fn: $!";
   my $title = xml_encode($d->{TITLE});
   my $abstract = xml_encode($d->{ABSTRACT});
   my $author = xml_encode($d->{AUTHOR});
@@ -759,8 +759,8 @@ sub make_cpan {
   unless (-e $copy) {
     rename($man, $copy) or die "Cannot rename $man: $!";
   }
-  open(my $orig, $copy) or die "Cannot read $copy: $!";
-  open(my $new, ">$man") or die "Cannot open $man for writing: $!";
+  open(my $orig, '<', $copy) or die "Cannot read $copy: $!";
+  open(my $new, '>', $man) or die "Cannot open $man for writing: $!";
   while (<$orig>) {
     $seen{ppd}++ if $_ =~ /$ppd/;
     $seen{archive}++ if $_ =~ /$archive/;

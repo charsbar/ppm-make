@@ -1,5 +1,11 @@
 Revision history for Perl extension PPM::Make.
 
+0.99  Wed, Feb 2, 2012
+  - fixed local tarball handling (resolved #63257)
+  - updated usage text of make_ppm to use --zip_archive option to
+    create a zip archive (resolved #72919)
+  - META.(yml|json) is now created by MakeMaker
+
 0.98  Thu, Jan 6, 2011
   - ISHIGAKI took over the maintenance.
   - Only check Win32::BuildNumber while using ActivePerl

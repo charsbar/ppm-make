@@ -1,0 +1,3 @@
+# just to check version consistency; not going to use this to release
+
+steps = FindVersion, ChangeVersion, CheckChangeLog, CheckVersionsMatch

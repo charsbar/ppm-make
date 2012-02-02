@@ -9,7 +9,7 @@ use Config::IniFiles;
 use LWP::Simple qw(getstore is_success);
 
 our ($ERROR);
-our $VERSION = '0.98';
+our $VERSION = '0.99';
 
 =head1 NAME
 

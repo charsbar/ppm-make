@@ -20,7 +20,7 @@ use Safe;
 use File::HomeDir;
 use version;
 
-our $VERSION = '0.98';
+our $VERSION = '0.99';
 
 my $protocol = $PPM::Make::Util::protocol;
 my $ext = $PPM::Make::Util::ext;

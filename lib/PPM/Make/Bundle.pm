@@ -13,7 +13,7 @@ use PPM::Make::Config qw(:all);
 use PPM::Make::Search;
 use LWP::Simple;
 
-our $VERSION = '0.98';
+our $VERSION = '0.99';
 
 my @cpan_mirrors = url_list();
 my $protocol = qr{^(http|ftp)://};

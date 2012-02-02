@@ -76,10 +76,22 @@ sub make_ppm {
     if ( ($self->{opts}->{zip_archive} or $self->{opts}->{zipdist})
         and not $self->{has}->{zip});
   my $dist = $self->{opts}->{dist};
+  $self->{org_dir} = my $org_dir = cwd;
   if ($dist) {
     my $build_dir = File::Spec->tmpdir;
     chdir $build_dir or die "Cannot chdir to $build_dir: $!";
     print "Working directory: $build_dir\n"; 
+
+    my $local_dist = File::Spec->file_name_is_absolute($dist)
+      ? $dist
+      : File::Spec->catfile($org_dir, $dist);
+    if (-f $local_dist) {
+      print "Found a local distribution: $local_dist\n";
+      my $basename = basename($local_dist);
+      copy($local_dist, File::Spec->catfile($build_dir, $basename));
+      $self->{opts}->{no_remote_lookup} = 0;
+    }
+
     die $self->{fetch_error} 
       unless ($dist = $self->fetch_file($dist, no_case => $no_case));
 #      if ($dist =~ m!$protocol! 
@@ -143,6 +155,13 @@ sub make_ppm {
       unless $self->{opts}->{upload}->{ppd}; 
     $self->upload_ppm();
   }
+
+  if ($org_dir ne $self->{cwd}) {
+    for (qw/archive ppd zip/) {
+      copy(File::Spec->catfile($self->{cwd}, $self->{$_}), $org_dir) if $self->{$_};
+    }
+  }
+
   return 1;
 }
 

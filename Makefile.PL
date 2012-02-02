@@ -7,19 +7,20 @@ use Config;
 require File::Spec;
 use constant WIN32 => $^O eq 'MSWin32';
 
-my %prereqs = ('Pod::Find' => 0.23,
-               'File::Spec' => 0,
-               'LWP' => 0,
-               'YAML' => 0,
-               'XML::Parser' => 2,
-               'Getopt::Long' => 2.33,
-               'Config::IniFiles' => 0,
-               'Pod::Usage' => 1,
-               'CPAN::DistnameInfo' => 0,
-               'File::HomeDir' => 0.52,
-               'HTML::Entities' => 0,
-               'version'  => 0,
-               );
+my %prereqs = (
+  'Config::IniFiles' => 0,
+  'CPAN::DistnameInfo' => 0,
+  'File::HomeDir' => 0.52,
+  'File::Spec' => 0,
+  'Getopt::Long' => 2.33,
+  'HTML::Entities' => 0,
+  'LWP' => 0,
+  'Pod::Find' => 0.23,
+  'Pod::Usage' => 1,
+  'XML::Parser' => 2,
+  'YAML' => 0,
+  'version'  => 0,
+);
 
 my $home = $ENV{HOME};
 my $has_myconfig = 0;
@@ -275,11 +276,26 @@ if ($eu_version >= 5.43) {
   $opts{ABSTRACT_FROM} = q{lib/PPM/Make.pm};
   $opts{AUTHOR} = 'Randy Kobes <r.kobes@uwinnipeg.ca>';
 }
-if ($eu_version > 6.11 ) {
-  $opts{NO_META} = 1;
-}
 
 $opts{test} = {TESTS => "t/*.t xt/*.t"} if -d "xt";
+
+if ($eu_version >= 6.31) {
+  $opts{LICENSE} = 'perl';
+}
+if ($eu_version >= 6.46) {
+  $opts{META_MERGE}{resources} = {
+    license => 'http://dev.perl.org/licenses/',
+    homepage => 'http://github.com/charsbar/ppm-make',
+    bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=PPM-Make',
+    AnnoCPAN => 'http://annocpan.org/dist/PPM-Make',
+    CPANForum => 'http://www.cpanforum.com/dist/PPM-Make',
+    CPANTS => 'http://cpants.perl.org/dist/PPM-Make',
+    Rating => 'http://cpanratings.perl.org/d/PPM-Make',
+    SearchCPAN => 'http://search.cpan.org/~ISHIGAKI/PPM-Make/',
+    Testers => 'http://cpantesters.perl.org/show/PPM-Make.html',
+    UWinnipeg => 'http://cpan.uwinnipeg.ca/dist/PPM-Make',
+  };
+}
 
 WriteMakefile(
               NAME         => 'PPM::Make',

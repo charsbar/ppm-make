@@ -80,7 +80,7 @@ make_ppm - make a PPM distribution
 
 Options:
 
- [-z | --zip]              : make a zip distribution
+ [-z | --zip_archive]      : make a zip distribution
  [-f | --force]            : force remaking a distribution
  [-i | --ignore]           : ignore any failing test results
  [ --skip]                 : skip running the tests

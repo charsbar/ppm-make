@@ -285,7 +285,8 @@ if ($eu_version >= 6.31) {
 if ($eu_version >= 6.46) {
   $opts{META_MERGE}{resources} = {
     license => 'http://dev.perl.org/licenses/',
-    homepage => 'http://github.com/charsbar/ppm-make',
+    homepage => 'https://github.com/charsbar/ppm-make',
+    repository => 'https://github.com/charsbar/ppm-make',
     bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=PPM-Make',
     AnnoCPAN => 'http://annocpan.org/dist/PPM-Make',
     CPANForum => 'http://www.cpanforum.com/dist/PPM-Make',

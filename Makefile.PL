@@ -169,33 +169,6 @@ WARN
   }
 }
 
-my $make = $Config{make} || which('make') || $CPAN::Config->{make};
-if ($make) {
-  print "Will use '$make' as your make program\n";
-}
-else {
-  if (WIN32) {
-    print <<'NMAKE';
-
-I cannot find a make program. If you are running
-an ActivePerl-compatible Win32 perl, you can obtain nmake from
-http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe.
-I can fetch and install that for you, if you like.
-
-NMAKE
-  my $ans = prompt('Fetch nmake?', 'yes');
-    if ($ans =~ /^y/i) {
-      fetch_nmake() or die "Could not install nmake";
-    }
-    else {
-      die 'Cannot function without nmake';
-    }
-  }
-  else {
-    die "Cannot find a make program\n";
-  }
-}
-
 eval{require Module::Build; };
 if ($@) {
   print <<'WARN';
@@ -349,53 +322,4 @@ sub which {
       }
     }
   }
-}
-
-sub fetch_nmake {
-  my $nmake = 'nmake15.exe';
-  my $r = 'http://download.microsoft.com/download/vc15/Patch/1.52/W95/EN-US/Nmake15.exe';
-  eval {require LWP::Simple; import LWP::Simple qw(getstore is_success)};
-  if ($@) {
-    warn "LWP::Simple is needed to get $nmake";
-    return;
-  }
-  unless (is_success(getstore($r, $nmake))) {
-    warn "Could not fetch $nmake";
-    return;
-  }
-  unless (-e $nmake) {
-    warn "Getting $nmake failed";
-    return;
-  }
-  my @args = ($nmake);
-  system(@args);
-  my ($exe, $err) = ('nmake.exe', 'nmake.err');
-  unless (-e $exe and -e $err) {
-    warn "Extraction of $exe and $err failed";
-    return;
-  }
-  use File::Copy;
-  my $dir = prompt('Which directory on your PATH should I copy the files to?',
-                   $Config{bin});
-  unless (-d $dir) {
-    my $ans = prompt(qq{$dir doesn\'t exist. Create it?}, 'yes');
-    if ($ans =~ /^y/i) {
-      mkdir $dir or do {
-        warn "Could not create $dir: $!";
-        return;
-      };
-    }
-    else {
-      warn "Will not create $dir";
-      return;
-    }
-  }
-  for ($exe, $err, 'README.TXT') {
-    move($_, $dir) or do {
-      warn "Moving $_ to $dir failed: $!";
-      return;
-    };
-  }
-  unlink $nmake or warn "Unlink of $nmake failed: $!";
-  return 1;
 }

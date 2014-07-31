@@ -540,12 +540,6 @@ sub src_and_build {
       $build_dir = $CPAN::Config->{build_dir};
       last SWITCH if ($src_dir and $build_dir);
     };
-    HAS_PPM and do {
-      my $d = parse_ppm();
-      $src_dir = $d->{OPTIONS}->{BUILDDIR};
-      $build_dir = $src_dir;
-      last SWITCH if ($src_dir and $build_dir);
-    };
     $src_dir = File::Spec->tmpdir() || '.';
     $build_dir = $src_dir;
   }

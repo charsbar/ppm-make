@@ -10,11 +10,6 @@ use LWP::Simple;
 our $VERSION = '0.99';
 our ($ERROR);
 
-my $info_soap;
-my $info_uri = 'http://theoryx5.uwinnipeg.ca/Apache/InfoServer';
-my $info_proxy = 'http://theoryx5.uwinnipeg.ca/cgi-bin/ppminfo.cgi';
-my $meta = 'http://cpan.uwinnipeg.ca/meta/';
-
 sub new {
   my $class = shift;
   my $self = {query => undef,
@@ -24,32 +19,7 @@ sub new {
               dist_results => {},
               dist_id => {},
              };
-  my $soap;
-  eval {require SOAP::Lite;};
-  unless ($@) {
-    eval {$soap = make_info_soap();};
-  }
-  unless ($@) {
-    $self->{soap} = $soap;
-  }
-  my $meta = shift;
-  $self->{meta} = $meta if defined $meta;
   bless $self, $class;
-}
-
-sub make_info_soap {
-
-  return SOAP::Lite
-    ->uri($info_uri)
-      ->proxy($info_proxy,
-              options => {compress_threshold => 10000})
-        ->on_fault(sub { my($soap, $res) = @_; 
-                         warn "SOAP Fault: ", 
-                           (ref $res ? $res->faultstring 
-                            : $soap->transport->status),
-                              "\n";
-                         return undef;
-                       });
 }
 
 sub search {
@@ -79,13 +49,9 @@ sub mod_search {
   if (defined $self->{cpan_meta}) {
     return 1 if $self->meta_mod_search();
   }
-  if (defined $self->{soap}) {
-    return 1 if $self->soap_mod_search();
-  }
   if (HAS_CPAN) {
     return 1 if $self->cpan_mod_search();
   }
-  return 1 if $self->ppd_mod_search();
   $ERROR = q{Not all query terms returned a result};
   return 0;
 }
@@ -179,119 +145,14 @@ sub cpan_mod_search {
   return 1;
 }
 
-sub ppd_mod_search {
-  my $self = shift;
-  my @mods = @{$self->{todo}};
-  my @todo = ();
-  if (scalar @mods > 0) {
-    foreach my $mod (@mods) {
-      my $query = ($mod =~ /::/) ? $mod : ($mod . '::');
-      my $content = get($meta . $query . '/META.ppd');
-      unless (defined $content and $content =~ /xml version/) {
-        push @todo, $mod;
-        next;
-      }
-      my $d = parse_ppd($content);
-      my $info = {};
-      my $provide = $d->{PROVIDE};
-      foreach my $item (@$provide) {
-        if ($item->{NAME} eq $mod) {
-              $info->{mod_name} = $item->{NAME};
-          $info->{mod_vers} = $item->{VERSION};
-        }
-      }
-      next unless defined $info->{mod_name};
-      (my $trial = $d->{TITLE}) =~ s/-/::/g;
-      if ($trial eq $mod) {
-        $info->{mod_abs} = $d->{ABSTRACT};
-      }
-      my $author = $d->{AUTHOR};
-      $author =~ s/&lt;/</;
-      $author =~ s/&gt;/>/;
-      $info->{author} = $author;
-      (my $cpanfile = $d->{CODEBASE}->{HREF}) =~ s{$meta/cpan/authors/id/}{};
-      (my $cpanid = $cpanfile) =~ s{\w/\w\w/(\w+)/.*}{$1};
-      $info->{cpanid} = $cpanid;
-      $info->{dist_file} = $cpanfile;
-      $info->{dist_name} = file_to_dist($cpanfile);
-      $self->{mod_results}->{$mod} = $info;
-      $self->{dist_id}->{$info->{dist_name}} ||=
-        check_id($info->{dist_file});
-    }
-  }
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
-sub soap_mod_search {
-  my $self = shift;
-  my $soap = $self->{soap};
-  my $query = $self->{todo};
-  my %mods = map {$_ => 1} @{$query};
-  my $result = $soap->mod_info($query);
-  eval {$result->fault};
-  if ($@) {
-      $ERROR = $@;
-      return;
-  }
-  $result->fault and do {
-      $ERROR = join ', ', 
-          $result->faultcode, 
-              $result->faultstring;
-      return;
-  };
-  my $results = $result->result();
-  return unless ($results);
-  if (ref($query) eq 'ARRAY') {
-    foreach my $entry (keys %$results) {
-      delete $mods{$entry} if (defined $mods{$entry});
-      my $info = $results->{$entry};
-      my $email = $info->{email} || $info->{cpanid} . '@cpan.org';
-      $info->{author} = $info->{fullname} . qq{ <$email> };
-      (my $prefix = $info->{cpanid}) =~ s{^(\w)(\w)(\w+)}{$1/$1$2/$1$2$3};
-      $info->{dist_file} = $prefix . '/' . $info->{dist_file};
-      $self->{mod_results}->{$entry} = $info;
-      $self->{dist_id}->{$info->{dist_name}} ||=
-        check_id($info->{dist_file});
-    }
-  }
-  else {
-    my $email = $results->{email} || $results->{cpanid} . '@cpan.org';
-    my $mod_name = $results->{mod_name};
-    $results->{author} = $results->{fullname} . qq{ &lt;$email&gt;};
-    (my $prefix = $results->{cpanid}) =~ s{^(\w)(\w)(\w+)}{$1/$1$2/$1$2$3};
-    $results->{dist_file} = $prefix . '/' . $results->{dist_file};
-    $self->{mod_results}->{$mod_name} = $results;
-    delete $mods{$mod_name} if (defined $mods{$mod_name});
-    $self->{dist_id}->{$results->{dist_name}} ||=
-      check_id($results->{dist_file});
-  }
-
-  my @todo = keys %mods;
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
 sub dist_search {
   my $self = shift;
   if (defined $self->{cpan_meta}) {
     return 1 if $self->meta_dist_search();
   }
-  if (defined $self->{soap}) {
-    return 1 if $self->soap_dist_search();
-  }
   if (HAS_CPAN) {
     return 1 if $self->cpan_dist_search();
   }
-  return 1 if $self->ppd_dist_search();
   $ERROR = q{Not all query terms returned a result};
   return;
 }
@@ -426,104 +287,6 @@ sub meta_dist_search {
     }
     $self->{dist_results}->{$dist} = $dists;
   }
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
-sub ppd_dist_search {
-  my $self = shift;
-  my @dists = @{$self->{todo}};
-  my @todo = ();
-  foreach my $dist (@dists) {
-    my $content = get($meta . $dist . '/META.ppd');
-    unless (defined $content and $content =~ /xml version/) {
-      push @todo, $dist;
-      next;
-    }
-    my $d = parse_ppd($content);
-    my $info = {};
-    $info->{dist_abs} = $d->{ABSTRACT};
-    $info->{dist_name} = $d->{SOFTPKG}->{NAME};
-    $info->{dist_vers} = $d->{SOFTPKG}->{VERSION};
-    my $author = $d->{AUTHOR};
-    $author =~ s/&lt;/</;
-    $author =~ s/&gt;/>/;
-    $info->{author} = $author;
-    (my $cpanfile = $d->{CODEBASE}->{HREF}) =~ s{$meta/cpan/authors/id/}{};
-    (my $cpanid = $cpanfile) =~ s{\w/\w\w/(\w+)/.*}{$1};
-    $info->{cpanid} = $cpanid;
-    $info->{dist_file} = $cpanfile;
-    my $provide = $d->{PROVIDE};
-    foreach my $item (@$provide) {
-      my $v = $item->{VERSION};
-      my $mod = $item->{NAME};
-      if (defined $v) {
-        push @{$info->{mods}}, {mod_name => $mod, mod_vers => $v};
-      }
-      else {
-        push @{$info->{mods}}, {mod_name => $mod};        
-      }
-    }
-    $self->{dist_results}->{$dist} = $info;
-    $self->{dist_id}->{$info->{dist_name}} ||=
-      check_id($info->{dist_file});
-  }
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
-sub soap_dist_search {
-  my $self = shift;
-  my $soap = $self->{soap};
-  my $query = $self->{todo};
-  my %dists = map {$_ => 1} @{$query};
-  my $result = $soap->dist_info($query);
-  eval {$result->fault};
-  if ($@) {
-      $ERROR = $@;
-      return;
-  }
-  $result->fault and do {
-    $ERROR = join ', ', 
-      $result->faultcode, 
-        $result->faultstring;
-    return;
-  };
-  my $results = $result->result();
-  return unless ($results);
-  if (ref($query) eq 'ARRAY') {
-    foreach my $entry (keys %$results) {
-      delete $dists{$entry} if (defined $dists{$entry});
-      my $info = $results->{$entry};
-      my $email = $info->{email} || $info->{cpanid} . '@cpan.org';
-      $info->{author} = $info->{fullname} . qq{ <$email> };
-      (my $prefix = $info->{cpanid}) =~ s{^(\w)(\w)(\w+)}{$1/$1$2/$1$2$3};
-      $info->{dist_file} = $prefix . '/' . $info->{dist_file};
-      $self->{dist_results}->{$entry} = $info;
-      $self->{dist_id}->{$info->{dist_name}} ||=
-        check_id($info->{dist_file});
-    }
-  }
-  else {
-    my $email = $results->{email} || $results->{cpanid} . '@cpan.org';
-    my $dist_name = $results->{dist_name};
-    $results->{author} = $results->{fullname} . qq{ <$email>};
-    (my $prefix = $results->{cpanid}) =~ s{^(\w)(\w)(\w+)}{$1/$1$2/$1$2$3};
-    $results->{dist_file} = $prefix . '/' . $results->{dist_file};
-    $self->{dist_results}->{$dist_name} = $results;
-    $self->{dist_id}->{$results->{dist_name}} ||=
-      check_id($results->{dist_file});
-    delete $dists{$dist_name} if (defined $dists{$dist_name});
-  }
-  my @todo = keys %dists;
   if (scalar @todo > 0) {
     $self->{todo} = \@todo;
     return;

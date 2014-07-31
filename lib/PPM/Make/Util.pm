@@ -99,9 +99,6 @@ my %Escape = ('&' => 'amp',
              );
 
 my %dists;
-my $info_soap;
-my $info_uri = 'http://theoryx5.uwinnipeg.ca/Apache/InfoServer';
-my $info_proxy = 'http://theoryx5.uwinnipeg.ca/cgi-bin/ppminfo.cgi';
 
 =item fix_path
 

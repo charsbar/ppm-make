@@ -193,36 +193,6 @@ WARN
   }
 }
 
-my $has_ppm;
-for my $dir ($Config{bin}, $Config{sitebin}) {
-  my $ppm = File::Spec->catfile($dir, 'ppm');
-  if (-f $ppm or -f "$ppm.bat") {
-    $has_ppm = 1;
-    last;
-  }
-}
-unless ($has_ppm) {
-  print <<'WARN';
-
-I could not find the PPM module, used to install packages.
-I can add PPM to the list of prerequisites to install, if 
-you like.
-
-WARN
-  my $ans = prompt('Add PPM?', 'no');
-  if ($ans =~ /^y/i) {
-    $prereqs{'PPM'} = 0;
-  }
-  else {
-    print <<'WARN';
-
-The package will still be able to function in creating
-ppm files, but cannot install them.
-
-WARN
-  }
-}
-
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
                                  make_ppm_bundle make_ppm_install);
 #push @exe_files, 'tk-ppm' if WIN32;

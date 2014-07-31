@@ -6,7 +6,7 @@ use Config;
 use File::Find;
 require File::Spec;
 use Safe;
-use YAML qw(LoadFile);
+use CPAN::Meta::YAML qw(LoadFile);
 
 our $VERSION = '0.99';
 

@@ -8,6 +8,9 @@ require File::Spec;
 use constant WIN32 => $^O eq 'MSWin32';
 
 my %prereqs = (
+  'Archive::Tar' => 1.08,
+  'Archive::Zip' => 1.02,
+  'Compress::Zlib' => 1.0,
   'Config::IniFiles' => 0,
   'CPAN::DistnameInfo' => 0,
   'File::HomeDir' => 0.52,
@@ -64,110 +67,6 @@ WARN
 
 my @path_ext = ();
 path_ext();
-
-eval {require Archive::Tar; require Compress::Zlib};
-if ($@) {
-  my $tar = $Config{tar} || which('tar') || $CPAN::Config->{tar} ;
-  my $gzip = $Config{gzip} || which('gzip') || $CPAN::Config->{gzip};
-  if ($tar and $gzip) {
-    print "Will use $tar and $gzip for .tar.gz archives\n";
-  }
-  else {
-    print <<'WARN';
-
-I could not find software to create .tar.gz archives.
-I can add Compress::Zlib and Archive::Tar to the list 
-of prerequisites to install, if you like.
-
-WARN
-    my $ans = prompt('Add Compress::Zlib and Archive::Tar?', 'yes');
-    if ($ans =~ /^y/i) {
-      $prereqs{'Archive::Tar'} = 1.08;
-      $prereqs{'Compress::Zlib'} = 1.0;
-    }
-    else {
-      die <<'DEATH';
-
-Software to handle .tar.gz could not be found. Please
-reconsider either the Compress::Zlib and Archive::Tar modules,
-or else external programs.
-
-DEATH
-    }
-  }
-}
-else {
-  my $atv = mod_version('Archive::Tar');
-  if ($atv < 1.08 and WIN32) {
-    print <<'AT';
-
-Archive::Tar version 1.08 or greater is needed.
-I can add this to the list of prerequisites, if you like.
-
-AT
-    my $ans = prompt('Add Archive::Tar?', 'yes');
-    if ($ans =~ /^y/i) {
-      $prereqs{'Archive::Tar'} = 1.08;
-    }
-  }
-  print "Will use Archive::Tar and Compress::Zlib for .tar.gz archives\n";
-}
-
-eval {require Archive::Zip;};
-if ($@) {
-  my $zip = $Config{zip} || which('zip') || $CPAN::Config->{zip};
-  my $unzip = $Config{unzip} || which('unzip') || $CPAN::Config->{unzip};
-  if ($zip and $unzip) {
-    print "Will use $zip and $unzip for .zip archives\n";
-  }
-  else {
-    print <<'WARN';
-
-I could not find software to handle .zip archives.
-I can add Archive::Zip to the list of prerequisites to 
-install, if you like.
-
-WARN
-    my $ans = prompt('Add Archive::Zip?', 'yes');
-    if ($ans =~ /^y/i) {
-      $prereqs{'Archive::Zip'} = 1.02;
-    }
-    else {
-      print <<'WARN';
-
-The package will still be able to function in creating
-tar.gz archives, but not zip archives.
-
-WARN
-    }
-  }
-}
-else {
-  my $zipv = mod_version('Archive::Zip');
-  if ($zipv < 1.02) {
-    print <<'ZIP';
-
-Archive::Zip version 1.02 or greater is needed.
-I can add this to the list of prerequisites, if you like.
-
-ZIP
-    my $ans = prompt('Add Archive::Zip?', 'yes');
-    if ($ans =~ /^y/i) {
-      $prereqs{'Archive::Zip'} = 1.02;
-    }
-    else {
-      print <<'WARN';
-
-The package will still be able to function in creating
-tar.gz archives, but not zip archives.
-
-WARN
-    }
-  }
-  else {
-    print "Will use Archive::Zip for .zip archives\n";
-  }
-}
 
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
                                  make_ppm_bundle make_ppm_install);

@@ -65,9 +65,6 @@ for details.
 WARN
 }
 
-my @path_ext = ();
-path_ext();
-
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
                                  make_ppm_bundle make_ppm_install);
 #push @exe_files, 'tk-ppm' if WIN32;
@@ -109,19 +106,6 @@ WriteMakefile(
               %opts,
              );
 
-sub path_ext {
-  if ($ENV{PATHEXT}) {
-    push @path_ext, split ';', $ENV{PATHEXT};
-    for my $ext (@path_ext) {
-      $ext =~ s/^\.*(.+)$/$1/;
-    }
-  }
-  else {
-    #Win9X: doesn't have PATHEXT
-    push @path_ext, qw(com exe bat);
-  }
-}
-
 sub mod_version {
   my $mod = shift;
   eval "require $mod";
@@ -131,24 +115,4 @@ sub mod_version {
   $mv =~ s/_.*$//x;
   $mv += 0;
   return $mv;
-}
-
-sub which {
-  my $program = shift;
-  return undef unless $program;
-  my @results = ();
-  for my $base (map { File::Spec->catfile($_, $program) } File::Spec->path()) {
-    if ($ENV{HOME} and not WIN32) {
-      # only works on Unix, but that's normal:
-      # on Win32 the shell doesn't have special treatment of '~'
-      $base =~ s/~/$ENV{HOME}/o;
-    }
-    return $base if -x $base;
-
-    if (WIN32) {
-      for my $ext (@path_ext) {
-        return "$base.$ext" if -x "$base.$ext";
-      }
-    }
-  }
 }

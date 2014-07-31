@@ -193,22 +193,6 @@ WARN
   }
 }
 
-eval{require SOAP::Lite; };
-if ($@) {
-  print <<'WARN';
-
-I could not find SOAP::Lite, which is an optional module
-which would be used, if present, to fetch some meta information
-on various packages. I can add this
-to the list of prerequisites to install, if you like.
-
-WARN
-  my $ans = prompt('Add SOAP::Lite?', 'yes');
-  if ($ans =~ /^y/i) {
-    $prereqs{'SOAP::Lite'} = 0;
-  }
-}
-
 my $has_ppm;
 for my $dir ($Config{bin}, $Config{sitebin}) {
   my $ppm = File::Spec->catfile($dir, 'ppm');

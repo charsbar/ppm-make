@@ -4,6 +4,7 @@ bin/make_ppm_install
 bin/ppm_install
 bin/rep_summary
 Changes
+cpanfile
 INSTALL
 lib/PPM/Make.pm
 lib/PPM/Make/Bundle.pm

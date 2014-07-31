@@ -1,29 +1,10 @@
-use ExtUtils::MakeMaker;
 use warnings;
 use strict;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+use ExtUtils::MakeMaker::CPANfile;
+
 use Config;
 require File::Spec;
 use constant WIN32 => $^O eq 'MSWin32';
-
-my %prereqs = (
-  'Archive::Tar' => 1.08,
-  'Archive::Zip' => 1.02,
-  'Compress::Zlib' => 1.0,
-  'Config::IniFiles' => 0,
-  'CPAN::DistnameInfo' => 0,
-  'File::HomeDir' => 0.52,
-  'File::Spec' => 0,
-  'Getopt::Long' => 2.33,
-  'HTML::Entities' => 0,
-  'LWP' => 0,
-  'Pod::Find' => 0.23,
-  'Pod::Usage' => 1,
-  'XML::Parser' => 2,
-  'YAML' => 0,
-  'version'  => 0,
-);
 
 my $home = $ENV{HOME};
 my $has_myconfig = 0;
@@ -67,52 +48,27 @@ WARN
 
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
                                  make_ppm_bundle make_ppm_install);
-#push @exe_files, 'tk-ppm' if WIN32;
-
-my $eu_version = mod_version('ExtUtils::MakeMaker');
-my %opts;
-if ($eu_version >= 5.43) {
-  $opts{ABSTRACT_FROM} = q{lib/PPM/Make.pm};
-  $opts{AUTHOR} = 'Randy Kobes <r.kobes@uwinnipeg.ca>';
-}
-
-$opts{test} = {TESTS => "t/*.t xt/*.t"} if -d "xt";
-
-if ($eu_version >= 6.31) {
-  $opts{LICENSE} = 'perl';
-}
-if ($eu_version >= 6.46) {
-  $opts{META_MERGE}{resources} = {
-    license => 'http://dev.perl.org/licenses/',
-    homepage => 'https://github.com/charsbar/ppm-make',
-    repository => 'https://github.com/charsbar/ppm-make',
-    bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=PPM-Make',
-    AnnoCPAN => 'http://annocpan.org/dist/PPM-Make',
-    CPANForum => 'http://www.cpanforum.com/dist/PPM-Make',
-    CPANTS => 'http://cpants.perl.org/dist/PPM-Make',
-    Rating => 'http://cpanratings.perl.org/d/PPM-Make',
-    SearchCPAN => 'http://search.cpan.org/~ISHIGAKI/PPM-Make/',
-    Testers => 'http://cpantesters.perl.org/show/PPM-Make.html',
-    UWinnipeg => 'http://cpan.uwinnipeg.ca/dist/PPM-Make',
-  };
-}
 
 WriteMakefile(
-              NAME         => 'PPM::Make',
-              VERSION_FROM => 'lib/PPM/Make.pm',
-              EXE_FILES    => [@exe_files],
-              dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'},
-              PREREQ_PM    => \%prereqs,
-              %opts,
-             );
-
-sub mod_version {
-  my $mod = shift;
-  eval "require $mod";
-  return if $@;
-  my $mv = eval "$mod->VERSION";
-  return 0 if $@;
-  $mv =~ s/_.*$//x;
-  $mv += 0;
-  return $mv;
-}
+  NAME         => 'PPM::Make',
+  AUTHOR       => 'Randy Kobes <r.kobes@uwinnipeg.ca>',
+  VERSION_FROM => 'lib/PPM/Make.pm',
+  ABSTRACT_FROM => q{lib/PPM/Make.pm},
+  EXE_FILES    => [@exe_files],
+  LICENSE      => 'perl',
+  dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'},
+  META_MERGE => {
+    resources => {
+      license => 'http://dev.perl.org/licenses/',
+      homepage => 'https://github.com/charsbar/ppm-make',
+      repository => 'https://github.com/charsbar/ppm-make',
+      bugtracker => 'http://rt.cpan.org/NoAuth/Bugs.html?Dist=PPM-Make',
+      AnnoCPAN => 'http://annocpan.org/dist/PPM-Make',
+      CPANForum => 'http://www.cpanforum.com/dist/PPM-Make',
+      CPANTS => 'http://cpants.perl.org/dist/PPM-Make',
+      Rating => 'http://cpanratings.perl.org/d/PPM-Make',
+      SearchCPAN => 'http://search.cpan.org/~ISHIGAKI/PPM-Make/',
+      Testers => 'http://cpantesters.perl.org/show/PPM-Make.html',
+    },
+  },
+);

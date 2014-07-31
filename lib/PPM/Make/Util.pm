@@ -673,38 +673,6 @@ sub url_list {
   return @urls;
 }
 
-# from Module::Build
-sub prompt {
-  my ($mess, $def) = @_;
-  die "prompt() called without a prompt message" unless @_;
-  
-# Pipe?
-  my $INTERACTIVE = -t STDIN && (-t STDOUT || !(-f STDOUT || -c STDOUT));
-  
-  ($def, my $dispdef) = defined $def ? ($def, "[$def] ") : ('', ' ');
-
-  {
-    local $|=1;
-    print "$mess $dispdef";
-  }
-  my $ans;
-  if ($INTERACTIVE) {
-    $ans = <STDIN>;
-    if ( defined $ans ) {
-      chomp $ans;
-    } else { # user hit ctrl-D
-      print "\n";
-    }
-  }
-  
-  unless (defined($ans) and length($ans)) {
-    print "$def\n";
-    $ans = $def;
-  }
-  
-  return $ans;
-}
-
 1;
 
 __END__

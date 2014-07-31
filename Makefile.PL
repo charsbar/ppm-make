@@ -169,30 +169,6 @@ WARN
   }
 }
 
-eval{require Module::Build; };
-if ($@) {
-  print <<'WARN';
-
-I could not find Module::Build, which is necessary to
-install (a growing number of) packages. I can add this
-to the list of prerequisites to install, if you like.
-
-WARN
-  my $ans = prompt('Add Module::Build?', 'yes');
-  if ($ans =~ /^y/i) {
-    $prereqs{'Module::Build'} = 0;
-  }
-  else {
-    print <<'WARN';
-
-The package is still usable, but will not be able to handle
-distributions requiring Module::Build.
-
-WARN
-
-  }
-}
-
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
                                  make_ppm_bundle make_ppm_install);
 #push @exe_files, 'tk-ppm' if WIN32;

@@ -1457,11 +1457,5 @@ ppm packages, L<ppm_install> for a command line interface
 for installing CPAN packages via C<ppm>,
 L<PPM::Make::Install>, and L<PPM>.
 
-The software needed to run the remote SOAP server used here
-for fetching author, module, and distribution information
-is available in the I<Cpan-Search-Lite> project
-at L<http://sourceforge.net/projects/cpan-search/> as
-F<cgi-bin/ppminfo.cgi> - see also L<CPAN::Search::Lite>.
-
 =cut
 

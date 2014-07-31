@@ -1,19 +1,14 @@
 package PPM::Make::Util;
 use strict;
 use warnings;
-use Exporter;
+use base qw(Exporter);
 use File::Basename;
 use Safe;
-use File::Copy;
 use XML::Parser;
 use Digest::MD5;
-require File::Spec;
-use File::Path;
 use Config;
-use LWP::Simple qw(getstore is_success);
 use CPAN::DistnameInfo;
-use File::HomeDir;
-use HTML::Entities qw(encode_entities encode_entities_numeric);
+use HTML::Entities qw(encode_entities_numeric);
 use File::Spec;
 use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 
@@ -37,8 +32,6 @@ our $VERSION = '0.99';
 
 my %encode = ('&' => '&amp;', '>' => '&gt;',
               '<' => '&lt;', '"' => '&quot;');
-
-use base qw(Exporter);
 
 our (@EXPORT_OK, %EXPORT_TAGS, $protocol, $ext, $src_dir, $build_dir,
      @url_list, $ERROR);

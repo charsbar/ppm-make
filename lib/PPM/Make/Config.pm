@@ -1,12 +1,11 @@
 package PPM::Make::Config;
 use strict;
 use warnings;
-use Exporter;
+use base qw(Exporter);
 use File::HomeDir;
 require File::Spec;
 use Config;
 use Config::IniFiles;
-use LWP::Simple qw(getstore is_success);
 
 our ($ERROR);
 our $VERSION = '0.99';
@@ -125,8 +124,6 @@ Constant which is true if the C<Module::Build> module is available.
 use constant HAS_MB => has_mb();
 
 require Win32 if WIN32;
-
-use base qw(Exporter);
 
 our (@EXPORT_OK, %EXPORT_TAGS);
 my @exports = qw(check_opts arch_and_os get_cfg_file read_cfg merge_opts

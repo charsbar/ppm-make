@@ -6,7 +6,6 @@ use Cwd;
 use File::Spec::Functions qw(:ALL);
 use File::Copy;
 use File::Path;
-use Config qw(myconfig %Config);
 use PPM::Make;
 use PPM::Make::Util qw(:all);
 use PPM::Make::Config qw(:all);

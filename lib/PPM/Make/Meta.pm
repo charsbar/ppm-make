@@ -2,9 +2,7 @@ package PPM::Make::Meta;
 use strict;
 use warnings;
 use PPM::Make::Util qw(:all);
-use Config;
 use File::Find;
-require File::Spec;
 use Safe;
 use CPAN::Meta::YAML qw(LoadFile);
 

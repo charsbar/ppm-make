@@ -1,9 +1,8 @@
 package PPM::Make::Install;
 use strict;
 use warnings;
-use PPM::Make;
-use File::Path;
 use base qw(PPM::Make);
+use File::Path;
 use PPM::Make::Util qw(:all);
 use PPM::Make::Config qw(:all);
 use PPM::Make::Meta;

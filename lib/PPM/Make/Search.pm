@@ -33,77 +33,37 @@ sub search {
     $ERROR = q{Please specify a mode within the search() method};
     return;
   }
-  unless ($mode eq 'mod' or $mode eq 'dist') {
-    $ERROR = q{Only 'mod' or 'dist' modes are supported};
-    return;
+  if ($mode eq 'dist') {
+    return $self->dist_search(%args);
   }
-  return ($mode eq 'mod') ?
-    $self->mod_search(%args) : $self->dist_search(%args);
+  if ($mode eq 'mod') {
+    return $self->mod_search(%args);
+  }
+  $ERROR = q{Only 'mod' or 'dist' modes are supported};
+  return;
 }
 
 sub mod_search {
   my $self = shift;
-  if (defined $self->{cpan_meta}) {
-    return 1 if $self->meta_mod_search();
-  }
-  if (HAS_CPAN) {
+  if (defined $self->{cpan_meta} or HAS_CPAN) {
     return 1 if $self->cpan_mod_search();
   }
   $ERROR = q{Not all query terms returned a result};
   return 0;
 }
 
-sub meta_mod_search {
+sub cpan_mod_search {
   my $self = shift;
   my @mods = @{$self->{todo}};
   my @todo = ();
   my $cpan_meta = $self->{cpan_meta};
   foreach my $m (@mods) {
-    my $id = $cpan_meta->instance('CPAN::Module', $m);
-    unless (defined $id) {
-      push @todo, $m;
-      next;
+    my $obj;
+    if ($cpan_meta) {
+      $obj = $cpan_meta->instance('CPAN::Module', $m);
+    } else {
+      $obj = CPAN::Shell->expand('Module', $m);
     }
-    my $mods = {};
-    my $string = $id->as_string;
-    my $mod;
-    if ($string =~ /id\s*=\s*(.*?)\n/m) {
-      $mod = $1;
-      next unless $mod;
-    }
-    $mods->{mod_name} = $mod;
-    if (my $v = $id->cpan_version) {
-      $mods->{mod_vers} = $v;
-    }
-    if ($string =~ /\s+DESCRIPTION\s+(.*?)\n/m) {
-      $mods->{mod_abs} = $1;
-    }
-    if ($string =~ /\s+CPAN_USERID.*\s+\((.*)\)\n/m) {
-      $mods->{author} = $1;
-    }
-    if ($string =~ /\s+CPAN_FILE\s+(\S+)\n/m) {
-      $mods->{dist_file} = $1;
-    }
-    ($mods->{cpanid} = $mods->{dist_file}) =~ s{\w/\w\w/(\w+)/.*}{$1};
-    $mods->{dist_name} = file_to_dist($mods->{dist_file});
-    $self->{mod_results}->{$mod} = $mods;
-    $self->{dist_id}->{$mods->{dist_name}} ||=
-      check_id($mods->{dist_file});
-  }
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
-sub cpan_mod_search {
-  my $self = shift;
-  my @mods = @{$self->{todo}};
-  my @todo = ();
-  foreach my $m (@mods) {
-    my $obj = CPAN::Shell->expand('Module', $m);
     unless (defined $obj) {
       push @todo, $m;
       next;
@@ -144,10 +104,7 @@ sub cpan_mod_search {
 
 sub dist_search {
   my $self = shift;
-  if (defined $self->{cpan_meta}) {
-    return 1 if $self->meta_dist_search();
-  }
-  if (HAS_CPAN) {
+  if (defined $self->{cpan_meta} or HAS_CPAN) {
     return 1 if $self->cpan_dist_search();
   }
   $ERROR = q{Not all query terms returned a result};
@@ -158,6 +115,7 @@ sub cpan_dist_search {
   my $self = shift;
   my @dists = @{$self->{todo}};
   my @todo = ();
+  my $cpan_meta = $self->{cpan_meta};
   my $dist_id = $self->{dist_id};
   foreach my $d (@dists) {  
     my $query = $dist_id->{$d}
@@ -167,7 +125,12 @@ sub cpan_dist_search {
       push @todo, $d;
       next;
     }
-    my $obj = CPAN::Shell->expand('Distribution', $query);
+    my $obj;
+    if ($cpan_meta) {
+      $obj = $cpan_meta->instance('Distribution', $query);
+    } else {
+      $obj = CPAN::Shell->expand('Distribution', $query);
+    }
     unless (defined $obj) {
       push @todo, $d;
       next;
@@ -198,7 +161,12 @@ sub cpan_dist_search {
     next unless @mods;
     (my $try = $dist) =~ s{-}{::}g;
     foreach my $mod(@mods) {
-      my $module = CPAN::Shell->expand('Module', $mod);
+      my $module;
+      if ($cpan_meta) {
+        $module = $cpan_meta->instance('Module', $mod);
+      } else {
+        $module = CPAN::Shell->expand('Module', $mod);
+      }
       next unless $module;
       if ($mod eq $try) {
         my $desc = $module->description;
@@ -206,75 +174,6 @@ sub cpan_dist_search {
       }
       my $v = $module->cpan_version;
       $v = undef if $v eq 'undef';
-      if ($v) {
-        push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
-      }
-      else {
-        push @{$dists->{mods}}, {mod_name => $mod};        
-      }
-    }
-    $self->{dist_results}->{$dist} = $dists;
-  }
-  if (scalar @todo > 0) {
-    $self->{todo} = \@todo;
-    return;
-  }
-  $self->{todo} = [];
-  return 1;
-}
-
-sub meta_dist_search {
-  my $self = shift;
-  my @dists = @{$self->{todo}};
-  my @todo = ();
-  my $cpan_meta = $self->{cpan_meta};
-  my $dist_id = $self->{dist_id};
-  foreach my $d (@dists) {
-    my $query = $dist_id->{$d};
-    unless ((defined $query) or ($query = $self->guess_dist_from_mod($d))) {
-      push @todo, $d;
-      next;
-    }
-    my $id = $cpan_meta->instance('Distribution', $query);
-    unless (defined $id) {
-      push @todo, $d;
-      next;
-    }
-    my $dists = {};
-    my $string = $id->as_string;
-    my $cpan_file;
-    if ($string =~ /id\s*=\s*(.*?)\n/m) {
-      $cpan_file = $1;
-      next unless $cpan_file;
-    }
-    my ($dist, $version) = file_to_dist($cpan_file);
-    $dists->{dist_name} = $dist;
-    $dists->{dist_file} = $cpan_file;
-    $dists->{dist_vers} = $version;
-    if ($string =~ /\s+CPAN_USERID.*\s+\((.*)\)\n/m) {
-      $dists->{author} = $1;
-      $dists->{cpanid} = $dists->{author};
-    }
-    $self->{dist_id}->{$dists->{dist_name}} ||=
-      check_id($dists->{dist_file});
-    my $mods;
-    if ($string =~ /\s+CONTAINSMODS\s+(.*)/m) {
-      $mods = $1;
-    }
-    next unless $mods;
-    my @mods = split ' ', $mods;
-    next unless @mods;
-    (my $try = $dist) =~ s{-}{::}g;
-    foreach my $mod(@mods) {
-      my $module = $cpan_meta->instance('Module', $mod);
-      next unless $module;
-      if ($mod eq $try) {
-        my $desc = $module->description;
-        $dists->{dist_abs} = $desc if $desc;
-      }
-      my $v = $module->cpan_version;
-      $v = undef if $v eq 'undef';
-      my $dist_name = file_to_dist($mod->cpan_file);
       if ($v) {
         push @{$dists->{mods}}, {mod_name => $mod, mod_vers => $v};
       }

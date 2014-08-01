@@ -14,11 +14,9 @@ sub new {
   die qq{Please supply the name of the directory} unless $cwd;
   die qq{The supplied directory "$cwd" doesn't exist} unless -d $cwd;
   my $search = $opts{search};
-  my $no_remote_lookup = $opts{no_remote_lookup};
   die qq{Please supply a PPM::Make::Search object}
     unless (defined $search and (ref($search) eq 'PPM::Make::Search'));
-  my $self = {info => {}, cwd => $cwd,
-              search => $search, no_remote_lookup => $no_remote_lookup};
+  my $self = {info => {}, cwd => $cwd, search => $search};
   bless $self, $class;
 }
 

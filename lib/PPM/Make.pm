@@ -43,7 +43,9 @@ sub new {
   my $opts = %cfg ? merge_opts(\%cfg, \%opts) : \%opts;
 
   $no_case = 1 if defined $opts->{no_case};
-  my $search = PPM::Make::Search->new();
+  my $search = PPM::Make::Search->new(
+    no_remote_lookup => $opts->{no_remote_lookup},
+  );
   my $self = {
               opts => $opts || {},
               cwd => '',
@@ -61,7 +63,6 @@ sub new {
               cpan_meta => $opts->{cpan_meta},
               search => $search,
               fetch_error => '',
-              no_remote_lookup => $opts->{no_remote_lookup},
              };
   bless $self, $class;
 }
@@ -85,7 +86,7 @@ sub make_ppm {
       print "Found a local distribution: $local_dist\n";
       my $basename = basename($local_dist);
       copy($local_dist, File::Spec->catfile($build_dir, $basename));
-      $self->{opts}->{no_remote_lookup} = 0;
+      $self->{search}->{no_remote_lookup} = 0;
     }
 
     die $self->{fetch_error} 
@@ -116,7 +117,6 @@ sub make_ppm {
 
   my $meta = PPM::Make::Meta->new(dir => $self->{cwd},
                                   search => $self->{search},
-                                  no_remote_lookup => $self->{no_remote_lookup},
                                   );
   die qq{Creating PPM::Make::Meta object failed}
     unless ($meta and (ref($meta) eq 'PPM::Make::Meta'));
@@ -563,8 +563,7 @@ sub make_ppd {
   }
 
   my $search = $self->{search};
-  my $no_remote_lookup = $self->{no_remote_lookup};
-  unless ($no_remote_lookup) {
+  {
     if ($search->search($name, mode => 'dist')) {
       my $mods = $search->{dist_results}->{$name}->{mods};
       if ($mods and (ref($mods) eq 'ARRAY')) {
@@ -580,8 +579,7 @@ sub make_ppd {
       }
     }
     else {
-      $search->search_error();
-      warn qq{Cannot obtain the modules that '$name' provides};
+      $search->search_error(qq{Cannot obtain the modules that '$name' provides});
     }
   }
   my $mod_ref;
@@ -592,7 +590,7 @@ sub make_ppd {
     push @$mod_ref, $dp;
   }
   my %deps = map {$_ => 1} @$mod_ref;
-  unless ($no_remote_lookup) {
+  {
     if ($mod_ref and ref($mod_ref) eq 'ARRAY') {
       if ($search->search($mod_ref, mode => 'mod')) {
         my $matches = $search->{mod_results};
@@ -610,8 +608,7 @@ sub make_ppd {
           }
         }
         else {
-          $search->search_error();
-          warn qq{Cannot find information on prerequisites for '$name'};
+          $search->search_error(qq{Cannot find information on prerequisites for '$name'});
         }
       }
     }
@@ -885,9 +882,8 @@ sub fetch_file {
     return $to;
   }
   my $search = $self->{search};
-  my $no_remote_lookup = $self->{no_remote_lookup};
   my $results;
-  unless ($no_remote_lookup or $dist =~ /$ext$/) {
+  unless ($dist =~ /$ext$/) {
     my $mod = $dist;
     $mod =~ s!-!::!g;
     if ($search->search($mod, mode => 'mod')) {

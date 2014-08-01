@@ -39,7 +39,9 @@ sub new {
     }
   }
   my $opts = %cfg ? merge_opts(\%cfg, \%opts) : \%opts;
-  my $search = PPM::Make::Search->new();
+  my $search = PPM::Make::Search->new(
+    no_remote_lookup => $opts->{no_remote_lookup},
+  );
 
   my $cwd = cwd;
   my $build_dir = catdir(tmpdir, "ppm_make-$$");
@@ -47,7 +49,7 @@ sub new {
   my $self = {cwd => $cwd, opts => $opts, files => {}, name => '',
               build_dir => $build_dir, has => $has, zipdist => $bundle_name,
               clean => $clean, arch => $arch, os => $os,
-              search => $search, no_remote_lookup => $opts->{no_remote_lookup},
+              search => $search,
               };
   bless $self, $class;
 }
@@ -113,9 +115,8 @@ sub get_info {
   my ($self, $dist) = @_;
   return if (-f $dist or $dist =~ /^$protocol/ or $dist =~ /$ext$/);
   my $search = $self->{search};
-  my $no_remote_lookup = $self->{no_remote_lookup};
   $dist =~ s{::}{-}g;
-  unless ($no_remote_lookup) {
+  {
     if ($search->search($dist, mode => 'dist')) {
       my $results = $search->{dist_results}->{$dist};
       my $cpan_file = cpan_file($results->{cpanid}, $results->{dist_file});
@@ -123,9 +124,7 @@ sub get_info {
       return $info;
     }
     else {
-      $search->search_error();
-      warn qq{Cannot obtain information on '$dist'};
-      return;
+      $search->search_error(qq{Cannot obtain information on '$dist'});
     }
   }
   return;
@@ -153,8 +152,7 @@ sub from_cpan {
     push @prereqs, $mod unless ($mod eq 'perl' or is_core($mod));
   }
   my $search = $self->{search};
-  my $no_remote_lookup = $self->{no_remote_lookup};
-  unless ($no_remote_lookup) {
+  {
     if (scalar @prereqs > 0) {
       my $matches = $search->search(\@prereqs, mode => 'mod');
       if ($matches and (ref($matches) eq 'HASH')) {
@@ -274,8 +272,7 @@ sub fetch_prereqs {
     push @prereqs, $mod unless ($mod eq 'perl' or is_core($mod));
   }
   my $search = $self->{search};
-  my $no_remote_lookup = $self->{no_remote_lookup};
-  unless ($no_remote_lookup) {
+  {
     if (scalar @prereqs > 0) {
       my $matches = $search->search(\@prereqs, mode => 'mod');
       if ($matches and (ref($matches) eq 'HASH')) {

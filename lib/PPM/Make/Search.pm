@@ -8,8 +8,9 @@ our $VERSION = '0.99';
 our ($ERROR);
 
 sub new {
-  my $class = shift;
-  my $self = {query => undef,
+  my ($class, %opts) = @_;
+  my $self = {%opts,
+              query => undef,
               args => {},
               todo => [],
               mod_results => {},
@@ -21,6 +22,9 @@ sub new {
 
 sub search {
   my ($self, $query, %args) = @_;
+
+  return if $self->{no_remote_lookup};
+
   unless ($query) {
     $ERROR = q{Please specify a query term};
     return;
@@ -225,8 +229,10 @@ sub dist_from_re {
 }
 
 sub search_error {
-  my $self = shift;
+  my ($self, $additional_error) = @_;
+  return if $self->{no_remote_lookup};
   warn $ERROR;
+  warn $additional_error if $additional_error;
 }
 
 sub check_id {

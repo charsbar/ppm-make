@@ -13,7 +13,6 @@ use File::Find;
 use File::Copy;
 use File::Spec;
 use Net::FTP;
-use LWP::Simple qw(getstore is_success);
 use Pod::Html;
 use version;
 
@@ -878,7 +877,7 @@ sub fetch_file {
   if ($dist =~ m!$protocol!) {
     ($to = $dist) =~ s!.*/(.*)!$1!;
     print "Fetching $dist ....\n";
-    my $rc = is_success(getstore($dist, $to));
+    my $rc = mirror($dist, $to);
     unless ($rc) {
       $self->{fetch_error} = qq{Fetch of $dist failed.};
       return;
@@ -929,7 +928,7 @@ sub fetch_file {
         $url =~ s!/$!!;
         $from = $url . '/authors/id/' . $id . '/' . $file;
         print "Fetching $from ...\n";
-        last if is_success(getstore($from, $file));
+        last if mirror($from, $file);
       }
       unless (-e $file) {
         $self->{fetch_error} = "Fetch of $file from $from failed";

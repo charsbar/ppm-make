@@ -11,6 +11,7 @@ use CPAN::DistnameInfo;
 use HTML::Entities qw(encode_entities_numeric);
 use File::Spec;
 use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
+use HTTP::Tiny;
 
 =head1 NAME
 
@@ -44,6 +45,7 @@ my @exports = qw(load_cs verifyMD5 xml_encode parse_version $ERROR
                  trim parse_ppd parse_abstract
                  ppd2cpan_version cpan2ppd_version tempfile
                  file_to_dist cpan_file fix_path
+                 mirror
                  $src_dir $build_dir @url_list);
 
 %EXPORT_TAGS = (all => [@exports]);
@@ -664,6 +666,21 @@ sub url_list {
   }
   push @urls, 'ftp://ftp.cpan.org', 'http://www.cpan.org';
   return @urls;
+}
+
+=item mirror
+
+Gets a file from a remote source and store it to a local file.
+
+  my $success = getstore($url, $file);
+
+=cut
+
+sub mirror {
+  my ($url, $file) = @_;
+  my $ua = HTTP::Tiny->new(agent => "PPM-Make/$VERSION");
+  my $res = $ua->mirror($url, $file);
+  $res->{success} ? 1 : 0;
 }
 
 1;

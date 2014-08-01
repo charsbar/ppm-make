@@ -10,7 +10,6 @@ use PPM::Make;
 use PPM::Make::Util qw(:all);
 use PPM::Make::Config qw(:all);
 use PPM::Make::Search;
-use LWP::Simple;
 
 our $VERSION = '0.99';
 
@@ -210,7 +209,7 @@ sub from_repository {
       $item .= '/' unless $item =~ m{/$};
       my $ppd_remote = $item . $ppd_local;
       if (head($ppd_remote)) {
-        if (is_success(getstore($ppd_remote, $ppd_local))) {
+        if (mirror($ppd_remote, $ppd_local)) {
           $info = parse_ppd(catfile($cwd, $ppd_local), $arch);
           next unless ($info and (ref($info) eq 'HASH'));
           my $info_arch = $info->{ARCHITECTURE}->{NAME};
@@ -230,7 +229,7 @@ sub from_repository {
   (my $ar_local = $codebase) =~ s{.*?/([^/]+)$}{$1};
   if ($codebase =~ /^$protocol/) {
     my $ar_remote = $codebase;
-    return unless is_success(getstore($ar_remote, $ar_local));
+    return unless mirror($ar_remote, $ar_local);
   }
   elsif ($url !~ /^$protocol/) {
     my $ar_remote = catfile($url, $codebase);
@@ -243,7 +242,7 @@ sub from_repository {
   }
   else {
     my $ar_remote = $url . $codebase;
-    return unless is_success(getstore($ar_remote, $ar_local));
+    return unless mirror($ar_remote, $ar_local);
   }
   unless (-f $ar_local) {
     warn qq{Cannot get "$ar_local"};

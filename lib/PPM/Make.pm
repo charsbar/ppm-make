@@ -11,13 +11,10 @@ use File::Basename;
 use File::Path;
 use File::Find;
 use File::Copy;
-use Config;
+use File::Spec;
 use Net::FTP;
 use LWP::Simple qw(getstore is_success);
-require File::Spec;
 use Pod::Html;
-use Safe;
-use File::HomeDir;
 use version;
 
 our $VERSION = '0.99';

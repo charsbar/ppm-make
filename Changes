@@ -1,5 +1,10 @@
 Revision history for Perl extension PPM::Make.
 
+0.9902 2014-08-03
+  - not to depend on dead services at theoryx5 (RT #97053)
+  - use XML::Writer to write ppd/xml files
+  - smoother installation (still WIP)
+
 0.9901  Wed, Feb 2, 2012
   - hid external package name
 

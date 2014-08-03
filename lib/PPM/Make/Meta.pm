@@ -6,7 +6,7 @@ use File::Find;
 use Safe;
 use CPAN::Meta::YAML qw(LoadFile);
 
-our $VERSION = '0.9901';
+our $VERSION = '0.9902';
 
 sub new {
   my ($class, %opts) = @_;

@@ -17,7 +17,7 @@ use Pod::Html;
 use XML::Writer;
 use version;
 
-our $VERSION = '0.9901';
+our $VERSION = '0.9902';
 
 my $protocol = $PPM::Make::Util::protocol;
 my $ext = $PPM::Make::Util::ext;

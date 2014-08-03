@@ -4,7 +4,7 @@ use warnings;
 use PPM::Make;
 use PPM::Make::Config qw(HAS_PPM);
 
-our $VERSION = '0.9901';
+our $VERSION = '0.9902';
 
 sub new {
   my ($class, %opts) = @_;

@@ -14,6 +14,7 @@ use File::Copy;
 use File::Spec;
 use Net::FTP;
 use Pod::Html;
+use XML::Writer;
 use version;
 
 our $VERSION = '0.99';
@@ -623,62 +624,55 @@ sub make_ppd {
 sub print_ppd {
   my ($self, $d, $fn) = @_;
   open (my $fh, '>', $fn) or die "Couldn't write to $fn: $!";
-  my $title = xml_encode($d->{TITLE});
-  my $abstract = xml_encode($d->{ABSTRACT});
-  my $author = xml_encode($d->{AUTHOR});
-  print $fh <<"END";
-<?xml version="1.0" encoding="UTF-8"?>
-<SOFTPKG NAME=\"$d->{SOFTPKG}->{NAME}\" VERSION=\"$d->{SOFTPKG}->{VERSION}\">
-  <TITLE>$title</TITLE>
-  <ABSTRACT>$abstract</ABSTRACT>
-  <AUTHOR>$author</AUTHOR>
-  <IMPLEMENTATION>
-END
+  my $writer = XML::Writer->new(OUTPUT => $fh, DATA_INDENT => 2);
+  $writer->xmlDecl('UTF-8');
+  # weird hack to eliminate an empty line after the XML declaration
+  $writer->startTag('SOFTPKG', NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
+  $writer->setDataMode(1);
+  $writer->dataElement(TITLE => $d->{TITLE});
+  $writer->dataElement(ABSTRACT => $d->{ABSTRACT});
+  $writer->dataElement(AUTHOR => $d->{AUTHOR});
+  $writer->startTag('IMPLEMENTATION');
 
-  foreach (keys %{$d->{DEPENDENCY}}) {
-    print $fh 
-      qq{    <DEPENDENCY NAME="$_" VERSION="$d->{DEPENDENCY}->{$_}" />\n};
+  foreach (sort keys %{$d->{DEPENDENCY}}) {
+    $writer->emptyTag('DEPENDENCY' => NAME => $_, VERSION => $d->{DEPENDENCY}->{$_});
   }
   if ($] > 5.008) {
-    foreach (keys %{$d->{REQUIRE}}) {
-      print $fh 
-        qq{    <REQUIRE NAME="$_" VERSION="$d->{REQUIRE}->{$_}" />\n};
+    foreach (sort keys %{$d->{REQUIRE}}) {
+      $writer->emptyTag('REQUIRE' => NAME => $_, VERSION => $d->{REQUIRE}->{$_});
     }
   }
   foreach (qw(OS ARCHITECTURE)) {
     next unless $d->{$_}->{NAME};
-    print $fh qq{    <$_ NAME="$d->{$_}->{NAME}" />\n};
+    $writer->emptyTag($_ => NAME => $d->{$_}->{NAME});
   }
 
   if (my $script = $d->{INSTALL}->{SCRIPT}) {
-    my $install = 'INSTALL';
-    if (my $exec = $d->{INSTALL}->{EXEC}) {
-      $install .= qq{ EXEC="$exec"};
+    my %attr;
+    for (qw/EXEC HREF/) {
+      next unless $d->{INSTALL}->{$_};
+      $attr{$_} = $d->{INSTALL}->{$_};
     }
-    if (my $href = $d->{INSTALL}->{HREF}) {
-      $install .= qq{ HREF="$href"};
-    }
-    print $fh qq{    <$install>$script</INSTALL>\n};
+    $writer->dataElement('INSTALL', $script, %attr);
   }
 
-  print $fh qq{    <CODEBASE HREF="$d->{CODEBASE}->{HREF}" />\n};
+  $writer->emptyTag('CODEBASE' => HREF => $d->{CODEBASE}->{HREF});
 
   my $provide = $d->{PROVIDE};
   unless ($self->{opts}->{no_ppm4}) {
     if ($provide and (ref($provide) eq 'ARRAY')) {
       foreach my $mod(@$provide) {
-        my $string = qq{    <PROVIDE NAME="$mod->{NAME}"};
+        my %attr;
         if ($mod->{VERSION}) {
-          $string .= qq{ VERSION="$mod->{VERSION}"};
+          $attr{VERSION} = $mod->{VERSION};
         }
-        $string .= qq{ />\n};
-        print $fh $string;
+        $writer->emptyTag('PROVIDE' => NAME => $mod->{NAME}, %attr);
       }
     }
   }
-  
-  print $fh qq{  </IMPLEMENTATION>\n};
-  print $fh qq{</SOFTPKG>\n};
+  $writer->endTag('IMPLEMENTATION');
+  $writer->endTag('SOFTPKG');
+  $writer->end;
   $fh->close;
   $self->{codebase} = $d->{CODEBASE}->{HREF};
 }

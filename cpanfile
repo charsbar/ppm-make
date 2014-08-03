@@ -12,4 +12,5 @@ requires 'HTTP::Tiny' => 0;
 requires 'Pod::Find' => 0.23;
 requires 'Pod::Usage' => 1;
 requires 'XML::Parser' => 2;
+requires 'XML::Writer' => 0;
 requires 'version'  => 0;

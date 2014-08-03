@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use PPM::Make::Util qw(parse_ppd ppd2cpan_version);
 use File::Copy;
+use XML::Writer;
 
 our $VERSION = '0.99';
 
@@ -24,30 +25,18 @@ sub new {
   my $no_ppm4 = $args{no_ppm4};
   my $fhs = {
              summary => {file => 'summary.ppm',
-                         fh => undef,
-                         start => \&summary_start,
                          softpkg => \&summary_softpkg,
-                         end => \&summary_end,
                         },
              searchsummary => {file => 'searchsummary.ppm',
-                               fh => undef,
-                               start => \&searchsummary_start,
                                softpkg => \&searchsummary_softpkg,
-                               end => \&searchsummary_end,
                         },
              package_lst => {file => 'package.lst',
-                             fh => undef,
-                             start => \&package_lst_start,
                              softpkg => \&package_lst_softpkg,
-                             end => \&package_lst_end,
                             },
             };
   unless ($no_ppm4) {
     $fhs->{package_xml} = {file => 'package.xml',
-                           fh => undef,
-                           start => \&package_xml_start,
                            softpkg => \&package_xml_softpkg,
-                           end => \&package_xml_end,
                           };
   };
   my $self = {rep => $rep,
@@ -65,17 +54,18 @@ sub summary {
   my $fhs = $self->{fhs};
   chdir($rep) or die qq{Cannot chdir to $rep: $!};
 
+  my $arch = $self->{arch};
   foreach my $key (keys %$fhs) {
     my $tmp = $fhs->{$key}->{file} . '.TMP';
     open(my $fh, '>', $tmp) or die qq{Cannot open $tmp: $!};
+    my $writer = XML::Writer->new(OUTPUT => $fh, DATA_INDENT => 2);
     $fhs->{$key}->{fh} = $fh;
-  }
-
-  my $arch = $self->{arch};
-  foreach my $key (keys %$fhs) {
-    my @args = ($fhs->{$key}->{fh});
-    push @args, $arch if ($arch and $key eq 'package_xml');
-    $fhs->{$key}->{start}->(@args);
+    $fhs->{$key}->{writer} = $writer;
+    my %attr;
+    $attr{ARCHITECTURE} = $arch if $arch && $key eq 'package_xml';
+    $writer->xmlDecl('UTF-8');
+    $writer->startTag('REPOSITORYSUMMARY', %attr);
+    $writer->setDataMode(1);
   }
 
   my $ppds = $self->{ppds};
@@ -91,15 +81,14 @@ sub summary {
       next;
     }
     foreach my $key (keys %$fhs) {
-      $fhs->{$key}->{softpkg}->($fhs->{$key}->{fh}, $data);
+      $fhs->{$key}->{softpkg}->($fhs->{$key}->{writer}, $data);
     }
   }
 
   foreach my $key (keys %$fhs) {
-   $fhs->{$key}->{end}->($fhs->{$key}->{fh});
-  }
-
-  foreach my $key (keys %$fhs) {
+    my $writer = delete $fhs->{$key}->{writer};
+    $writer->endTag('REPOSITORYSUMMARY');
+    $writer->end;
     close($fhs->{$key}->{fh});
     my $real = $fhs->{$key}->{file};
     my $tmp =  $real . '.TMP';
@@ -108,211 +97,104 @@ sub summary {
   return 1;
 }
 
-sub summary_start {
-  my $fh = shift;
-  print $fh <<"END";
-<?xml version="1.0" encoding="UTF-8"?>
-<REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub searchsummary_start {
-  my $fh = shift;
-  print $fh <<"END";
-<?xml version="1.0" encoding="UTF-8"?>
-<REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub package_lst_start {
-  my $fh = shift;
-  print $fh <<"END";
-<?xml version="1.0" encoding="UTF-8"?>
-<REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub package_xml_start {
-  my $fh = shift;
-  my $arch = shift;
-  my $rs = $arch ? qq{<REPOSITORYSUMMARY ARCHITECTURE="$arch">} :
-    q{<REPOSITORYSUMMARY>};
-  print $fh <<"END";
-<?xml version="1.0" encoding="UTF-8"?>
-$rs
-END
-  return 1;
-}
-
-sub summary_end {
-  my $fh = shift;
-  print $fh <<"END";
-</REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub searchsummary_end {
-  my $fh = shift;
-  print $fh <<"END";
-</REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub package_lst_end {
-  my $fh = shift;
-  print $fh <<"END";
-</REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
-sub package_xml_end {
-  my $fh = shift;
-  print $fh <<"END";
-</REPOSITORYSUMMARY>
-END
-  return 1;
-}
-
 sub summary_softpkg {
-  my ($fh, $d) = @_;
-  print $fh <<"END";
-  <SOFTPKG NAME="$d->{SOFTPKG}->{NAME}" VERSION="$d->{SOFTPKG}->{VERSION}">
-    <TITLE>$d->{TITLE}</TITLE>
-    <ABSTRACT>$d->{ABSTRACT}</ABSTRACT>
-    <AUTHOR>$d->{AUTHOR}</AUTHOR>
-  </SOFTPKG>
-END
+  my ($writer, $d) = @_;
+  $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
+  for (qw/TITLE ABSTRACT AUTHOR/) {
+    $writer->dataElement($_ => $d->{$_});
+  }
+  $writer->endTag('SOFTPKG');
   return 1;
 }
 
 sub searchsummary_softpkg {
-  my ($fh, $d) = @_;
-  print $fh <<"END";
-  <SOFTPKG NAME="$d->{SOFTPKG}->{NAME}" VERSION="$d->{SOFTPKG}->{VERSION}">
-    <TITLE>$d->{TITLE}</TITLE>
-    <ABSTRACT>$d->{ABSTRACT}</ABSTRACT>
-    <AUTHOR>$d->{AUTHOR}</AUTHOR>
-END
+  my ($writer, $d) = @_;
+  $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
+  for (qw/TITLE ABSTRACT AUTHOR/) {
+    $writer->dataElement($_ => $d->{$_});
+  }
   my $imp = $d->{IMPLEMENTATION};
   foreach my $item(@$imp) {
-    print $fh <<"END";
-    <IMPLEMENTATION>
-      <ARCHITECTURE NAME="$item->{ARCHITECTURE}->{NAME}" />
-    </IMPLEMENTATION>
-END
+    $writer->startTag('IMPLEMENTATION');
+    $writer->emptyTag('ARCHITECTURE' => NAME => $item->{ARCHITECTURE}->{NAME});
+    $writer->endTag('IMPLEMENTATION');
   }
-  print $fh <<"END";
-  </SOFTPKG>
-END
+  $writer->endTag('SOFTPKG');
   return 1;
 }
 
 sub package_lst_softpkg {
-  my ($fh, $d) = @_;
-
-  print $fh <<"END";
-  <SOFTPKG NAME="$d->{SOFTPKG}->{NAME}" VERSION="$d->{SOFTPKG}->{VERSION}">
-    <TITLE>$d->{TITLE}</TITLE>
-    <ABSTRACT>$d->{ABSTRACT}</ABSTRACT>
-    <AUTHOR>$d->{AUTHOR}</AUTHOR>
-END
-
+  my ($writer, $d) = @_;
+  $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
+  for (qw/TITLE ABSTRACT AUTHOR/) {
+    $writer->dataElement($_ => $d->{$_});
+  }
   my $imp = $d->{IMPLEMENTATION};
   foreach my $item(@$imp) {
-    print $fh <<"END";
-    <IMPLEMENTATION>
-END
+    $writer->startTag('IMPLEMENTATION');
     my $deps = $item->{DEPENDENCY};
     if (defined $deps and (ref($deps) eq 'ARRAY')) {
       foreach my $dep (@$deps) {
-        print $fh <<"END";
-      <DEPENDENCY NAME="$dep->{NAME}" VERSION="$dep->{VERSION}" />
-END
+        $writer->emptyTag('DEPENDENCY' => NAME => $dep->{NAME}, VERSION => $dep->{VERSION});
       }
     }
 
     foreach (qw(OS ARCHITECTURE)) {
       next unless $item->{$_}->{NAME};
-      print $fh qq{      <$_ NAME="$item->{$_}->{NAME}" />\n};
+      $writer->emptyTag($_ => NAME => $item->{$_}->{NAME});
     }
 
     if (my $script = $item->{INSTALL}->{SCRIPT}) {
-      my $install = 'INSTALL';
-      if (my $exec = $item->{INSTALL}->{EXEC}) {
-        $install .= qq{ EXEC="$exec"};
+      my %attr;
+      for (qw/EXEC HREF/) {
+        next unless $item->{INSTALL}->{$_};
+        $attr{$_} = $item->{INSTALL}->{$_};
       }
-      if (my $href = $item->{INSTALL}->{HREF}) {
-        $install .= qq{ HREF="$href"};
-      }
-      print $fh qq{      <$install>$script</INSTALL>\n};
+      $writer->dataElement('INSTALL' => $script, %attr);
     }
-    
-    print $fh <<"END";
-      <CODEBASE HREF="$item->{CODEBASE}->{HREF}" />
-    </IMPLEMENTATION>
-END
+    $writer->emptyTag('CODEBASE' => HREF => $item->{CODEBASE}->{HREF});
+    $writer->endTag('IMPLEMENTATION');
   }
-  print $fh <<"END";
-  </SOFTPKG>
-END
-
+  $writer->endTag('SOFTPKG');
   return 1;
 }
 
 sub package_xml_softpkg {
-  my ($fh, $d) = @_;
+  my ($writer, $d) = @_;
   my $s_version = ppd2cpan_version($d->{SOFTPKG}->{VERSION});
-  print $fh <<"END";
-  <SOFTPKG NAME="$d->{SOFTPKG}->{NAME}" VERSION="$s_version">
-    <ABSTRACT>$d->{ABSTRACT}</ABSTRACT>
-    <AUTHOR>$d->{AUTHOR}</AUTHOR>
-END
+  $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $s_version);
+  for (qw/ABSTRACT AUTHOR/) {
+    $writer->dataElement($_ => $d->{$_});
+  }
   my $imp = $d->{IMPLEMENTATION};
   my $size = scalar @$imp;
-  my $sp = ($size == 1) ? '    ' : '      ';
   foreach my $item (@$imp) {
-    print $fh <<"END";
-    <IMPLEMENTATION>
-END
+    $writer->startTag('IMPLEMENTATION');
 
     if (my $arch = $item->{ARCHITECTURE}->{NAME}) {
-      print $fh qq{      <ARCHITECTURE NAME="$arch" />\n};
+      $writer->emptyTag('ARCHITECTURE' => NAME => $arch);
     }
 
     if (my $script = $item->{INSTALL}->{SCRIPT}) {
-      my $install = 'INSTALL';
-      if (my $exec = $item->{INSTALL}->{EXEC}) {
-        $install .= qq{ EXEC="$exec"};
+      my %attr;
+      for (qw/EXEC HREF/) {
+        next unless $item->{INSTALL}->{$_};
+        $attr{$_} = $item->{INSTALL}->{$_};
       }
-      if (my $href = $item->{INSTALL}->{HREF}) {
-        $install .= qq{ HREF="$href"};
-      }
-      print $fh qq{      <$install>$script</INSTALL>\n};
+      $writer->dataElement('INSTALL' => $script, %attr);
     }
-
-    print $fh <<"END";
-      <CODEBASE HREF="$item->{CODEBASE}->{HREF}" />
-END
+    $writer->emptyTag('CODEBASE' => HREF => $item->{CODEBASE}->{HREF});
     if ($size == 1) {
-      print $fh <<"END";
-    </IMPLEMENTATION>
-END
+      $writer->endTag('IMPLEMENTATION');
     }
     my $provide = $item->{PROVIDE};
     if ($provide and (ref($provide) eq 'ARRAY')) {
       foreach my $mod(@$provide) {
-        my $string = qq{$sp<PROVIDE NAME="$mod->{NAME}"};
+        my %attr;
         if ($mod->{VERSION}) {
-          $string .= qq{ VERSION="$mod->{VERSION}"};
+          $attr{VERSION} = $mod->{VERSION};
         }
-        $string .= qq{ />\n};
-        print $fh $string;
+        $writer->emptyTag('PROVIDE' => NAME => $mod->{NAME}, %attr);
       }
     }
 
@@ -321,19 +203,16 @@ END
       foreach my $dep (@$deps) {
 #  ppm4 819 doesn't seem to like version numbers
 #      my $p_version = ppd2cpan_version($dep->{VERSION});
-#      print $fh 
-#      qq{    <REQUIRE NAME="$dep->{NAME}" VERSION="$p_version" />\n};
-        print $fh qq{$sp<REQUIRE NAME="$dep->{NAME}" />\n};
+#      $writer->emptyTag('REQUIRE' => NAME => $dep->{NAME}, VERSION => $p_version);
+        $writer->emptyTag('REQUIRE' => NAME => $dep->{NAME});
       }
     }
     if ($size > 1) {
-      print $fh <<"END";
-    </IMPLEMENTATION>
-END
+      $writer->endTag('IMPLEMENTATION');
     }
   }
 
-  print $fh qq{  </SOFTPKG>\n};
+  $writer->endTag('SOFTPKG');
   return 1;
 }
 

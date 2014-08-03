@@ -177,21 +177,6 @@ sub verifyMD5 {
   }
 }
 
-=item xml_encode
-
-Escapes E<amp>, E<gt>, E<lt>, and E<quot>, as well as high ASCII characters.
-
-  my $escaped = xml_encode('Five is > four');
-
-=cut
-
-sub xml_encode {
-    my $s = shift;
-    return unless $s;
-    $s =~ s/(&(?!(amp|lt|gt|quot);)|>|<|\")/$encode{$1}/g;
-    return encode_entities_numeric($s, "\177-\377");
-}
-
 =item is_core
 
 Tests to see if a module is part of the core, based on
@@ -496,7 +481,7 @@ sub ppd_char {
   my $internal = $self->{_mydata};
   my $tag = $internal->{_current};
   if ($tag and $internal->{wanted}->{$tag}) {
-    $internal->{$tag} .= xml_encode($string);
+    $internal->{$tag} .= $string;
   }
   elsif ($tag and $tag eq 'INSTALL') {
     $internal->{IMPLEMENTATION}->[$i]->{INSTALL}->{SCRIPT} .= $string;

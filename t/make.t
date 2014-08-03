@@ -37,7 +37,7 @@ for ($ppd, $tgz, "t/$ppd", "t/$tgz") {
   }
 }
 
-my $author = q{Randy Kobes &lt;r.kobes@uwinnipeg.ca&gt;};
+my $author = q{Randy Kobes <r.kobes@uwinnipeg.ca>};
 my $abstract = q{Make a ppm package from a CPAN distribution};
 my $d = PPM::Make::parse_ppd($ppd);
 ok($d);

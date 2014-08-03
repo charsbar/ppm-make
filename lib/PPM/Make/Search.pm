@@ -4,7 +4,7 @@ use warnings;
 use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB);
 use PPM::Make::Util qw(:all);
 
-our $VERSION = '0.99';
+our $VERSION = '0.9901';
 our ($ERROR);
 
 sub new {

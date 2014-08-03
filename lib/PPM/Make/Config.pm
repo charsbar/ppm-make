@@ -8,7 +8,7 @@ use Config;
 use Config::IniFiles;
 
 our ($ERROR);
-our $VERSION = '0.99';
+our $VERSION = '0.9901';
 
 =head1 NAME
 

@@ -29,7 +29,7 @@ This module contains a number of utility functions used by PPM::Make.
 
 =cut
 
-our $VERSION = '0.99';
+our $VERSION = '0.9901';
 
 my %encode = ('&' => '&amp;', '>' => '&gt;',
               '<' => '&lt;', '"' => '&quot;');
@@ -566,7 +566,8 @@ sub parse_version {
     # next unless /\$(([\w\:\']*)\bVERSION)\b.*\=/;
     next unless /([\$*])(([\w\:\']*)\bVERSION)\b.*\=/;
     my $eval = qq{
-                  package ExtUtils::MakeMaker::_version;
+                  package # hide from PAUSE
+                    ExtUtils::MakeMaker::_version;
                   no strict;
                   
                   local $1$2;

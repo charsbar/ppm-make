@@ -1,5 +1,8 @@
 Revision history for Perl extension PPM::Make.
 
+0.9901  Wed, Feb 2, 2012
+  - hid external package name
+
 0.99  Wed, Feb 2, 2012
   - fixed local tarball handling (resolved #63257)
   - updated usage text of make_ppm to use --zip_archive option to

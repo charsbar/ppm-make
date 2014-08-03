@@ -3,7 +3,7 @@ use strict;
 use ExtUtils::MakeMaker::CPANfile;
 
 use Config;
-require File::Spec;
+use File::Spec;
 use constant WIN32 => $^O eq 'MSWin32';
 
 my $home = $ENV{HOME};
@@ -35,7 +35,7 @@ WARN
 }
 my $sys_config = $INC{'CPAN/Config.pm'};
 if (not $has_myconfig and not WIN32 and not -w $sys_config) {
-  die <<"WARN";
+  warn <<"WARN";
 
 You do not have the right permissions to use the settings 
 in $sys_config. I would suggest 
@@ -44,6 +44,7 @@ in a .cpan/CPAN/ directory. See the CPAN.pm documentation
 for details.
 
 WARN
+  exit;
 }
 
 my @exe_files = map{"bin/$_"} qw(make_ppm ppm_install rep_summary
@@ -53,7 +54,7 @@ WriteMakefile(
   NAME         => 'PPM::Make',
   AUTHOR       => 'Randy Kobes <r.kobes@uwinnipeg.ca>',
   VERSION_FROM => 'lib/PPM/Make.pm',
-  ABSTRACT_FROM => q{lib/PPM/Make.pm},
+  ABSTRACT_FROM => 'lib/PPM/Make.pm',
   EXE_FILES    => [@exe_files],
   LICENSE      => 'perl',
   dist         => {COMPRESS => 'gzip', SUFFIX => 'gz'},

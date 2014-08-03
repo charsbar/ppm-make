@@ -8,7 +8,6 @@ use XML::Parser;
 use Digest::MD5;
 use Config;
 use CPAN::DistnameInfo;
-use HTML::Entities qw(encode_entities_numeric);
 use File::Spec;
 use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 use HTTP::Tiny;
@@ -31,16 +30,13 @@ This module contains a number of utility functions used by PPM::Make.
 
 our $VERSION = '0.9901';
 
-my %encode = ('&' => '&amp;', '>' => '&gt;',
-              '<' => '&lt;', '"' => '&quot;');
-
 our (@EXPORT_OK, %EXPORT_TAGS, $protocol, $ext, $src_dir, $build_dir,
      @url_list, $ERROR);
 $protocol = qr{^(http|ftp)://};
 $ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
 @url_list = url_list();
 
-my @exports = qw(load_cs verifyMD5 xml_encode parse_version $ERROR
+my @exports = qw(load_cs verifyMD5 parse_version $ERROR
                  is_core is_ap_core url_list
                  trim parse_ppd parse_abstract
                  ppd2cpan_version cpan2ppd_version tempfile
@@ -86,12 +82,6 @@ if (WIN32 and ACTIVEPERL and eval { Win32::BuildNumber() > 818 }) {
   $ap_core{'DBI'}++; $ap_core{'DBD-SQLite'}++;
 }
 src_and_build();
-
-my %Escape = ('&' => 'amp',
-              '>' => 'gt',
-              '<' => 'lt',
-              '"' => 'quot'
-             );
 
 my %dists;
 

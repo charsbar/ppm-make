@@ -19,11 +19,6 @@ use version;
 
 our $VERSION = '0.9902';
 
-my $protocol = $PPM::Make::Util::protocol;
-my $ext = $PPM::Make::Util::ext;
-my $no_case = 0;
-my $html = 'blib/html';
-
 sub new {
   my ($class, %opts) = @_;
 
@@ -43,7 +38,6 @@ sub new {
   }
   my $opts = %cfg ? merge_opts(\%cfg, \%opts) : \%opts;
 
-  $no_case = 1 if defined $opts->{no_case};
   my $search = PPM::Make::Search->new(
     no_remote_lookup => $opts->{no_remote_lookup},
   );
@@ -91,9 +85,9 @@ sub make_ppm {
     }
 
     die $self->{fetch_error} 
-      unless ($dist = $self->fetch_file($dist, no_case => $no_case));
-#      if ($dist =~ m!$protocol! 
-#          or $dist =~ m!^\w/\w\w/! or $dist !~ m!$ext!);
+      unless ($dist = $self->fetch_file($dist, no_case => $self->{opts}{no_case}));
+#      if ($dist =~ m!$PPM::Make::Util::protocol! 
+#          or $dist =~ m!^\w/\w\w/! or $dist !~ m!$PPM::Make::Util::ext!);
     print "Extracting files from $dist ....\n";
     my $name = $self->extract_dist($dist, $build_dir);
     chdir $name or die "Cannot chdir to $name: $!";
@@ -165,7 +159,7 @@ sub make_ppm {
 sub check_script {
   my $self = shift;
   my $script = $self->{opts}->{script};
-  return if ($script =~ m!$protocol!);
+  return if ($script =~ m!$PPM::Make::Util::protocol!);
   my ($name, $path, $suffix) = fileparse($script, '\..*');
   my $file = $name . $suffix;
   $self->{opts}->{script} = $file;
@@ -192,7 +186,7 @@ sub extract_dist {
   my $has = $self->{has};
   my ($tar, $gzip, $unzip) = @$has{qw(tar gzip unzip)};
 
-  my ($name, $path, $suffix) = fileparse($file, $ext);
+  my ($name, $path, $suffix) = fileparse($file, $PPM::Make::Util::ext);
   if (-d "$build_dir/$name") {
       rmtree("$build_dir/$name", 1, 0) 
           or die "rmtree of $name failed: $!";
@@ -238,9 +232,9 @@ sub adjust_binary {
   my $archname = $self->{ARCHITECTURE};
   return unless $archname;
   if ($binary) {
-    if ($binary =~ m!$ext!) {
+    if ($binary =~ m!$PPM::Make::Util::ext!) {
       if ($binary =~ m!/!) {
-        $binary =~ s!(.*?)([\w\-]+)$ext!$1$archname/$2$3!;
+        $binary =~ s!(.*?)([\w\-]+)$PPM::Make::Util::ext!$1$archname/$2$3!;
       }
       else {
         $binary = $archname . '/' . $binary;
@@ -310,6 +304,7 @@ sub make_html {
   my $self = shift;
   my $args = $self->{args};
   my $cwd = $self->{cwd};
+  my $html = 'blib/html';
   unless (-d $html) {
     mkpath($html, 1, 0755) or die "Couldn't mkdir $html: $!";
   }
@@ -370,8 +365,8 @@ sub make_dist {
   my $force_zip = $self->{opts}->{zip_archive};
   my $binary = $self->{opts}->{binary};
   my $name;
-  if ($binary and $binary =~ /$ext/) {
-    ($name = $binary) =~ s!.*/(.*)$ext!$1!;
+  if ($binary and $binary =~ /$PPM::Make::Util::ext/) {
+    ($name = $binary) =~ s!.*/(.*)$PPM::Make::Util::ext!$1!;
   }
   else {
     $name = $args->{DISTNAME} || $args->{NAME};
@@ -386,7 +381,7 @@ sub make_dist {
                   $self->{ARCHITECTURE} =~ /Win32/i);
 
   my $script = $self->{opts}->{script};
-  my $script_is_external = $script ? ($script =~ /$protocol/) : '';
+  my $script_is_external = $script ? ($script =~ /$PPM::Make::Util::protocol/) : '';
   my @files;
   if ($self->{opts}->{add}) {
     @files = @{$self->{opts}->{add}};
@@ -519,13 +514,13 @@ sub make_ppd {
   my ($make, $perl) = @$has{qw(make perl)};
   my $binary = $self->{opts}->{binary};
   if ($binary) {
-    unless ($binary =~ /$ext/) {
+    unless ($binary =~ /$PPM::Make::Util::ext/) {
       $binary =~ s!/$!!;
       $binary .= '/' . $dist;
     }
   }
 
-  (my $name = $dist) =~ s!$ext!!;
+  (my $name = $dist) =~ s!$PPM::Make::Util::ext!!;
   if ($self->{opts}->{vsr} and not $self->{opts}->{vsp}) {
      $name =~ s/-$self->{version}// if $self->{version};
   }
@@ -553,7 +548,7 @@ sub make_ppd {
     if (my $exec = $self->{opts}->{exec}) {
       $d->{INSTALL}->{EXEC} = $exec;
     }
-    if ($script =~ m!$protocol!) {
+    if ($script =~ m!$PPM::Make::Util::protocol!) {
       $d->{INSTALL}->{HREF} = $script;
       (my $name = $script) =~ s!.*/(.*)!$1!;
       $d->{INSTALL}->{SCRIPT} = $name;
@@ -859,13 +854,13 @@ sub fetch_file {
   my $no_case = $args{no_case};
   my $to;
   if (-f $dist) {
-    $to = basename($dist, $ext);
+    $to = basename($dist, $PPM::Make::Util::ext);
     unless ($dist eq $to) {
       copy($dist, $to) or die "Cannot cp $dist to $to: $!";
     }
     return $to;
   }
-  if ($dist =~ m!$protocol!) {
+  if ($dist =~ m!$PPM::Make::Util::protocol!) {
     ($to = $dist) =~ s!.*/(.*)!$1!;
     print "Fetching $dist ....\n";
     my $rc = mirror($dist, $to);
@@ -877,7 +872,7 @@ sub fetch_file {
   }
   my $search = $self->{search};
   my $results;
-  unless ($dist =~ /$ext$/) {
+  unless ($dist =~ /$PPM::Make::Util::ext$/) {
     my $mod = $dist;
     $mod =~ s!-!::!g;
     if ($search->search($mod, mode => 'mod')) {
@@ -896,7 +891,7 @@ sub fetch_file {
     $dist = cpan_file($results->{cpanid}, $results->{dist_file});
   }
   my $id = dirname($dist);
-  $to = basename($dist, $ext);
+  $to = basename($dist, $PPM::Make::Util::ext);
   my $src = HAS_CPAN ? 
     File::Spec->catdir($src_dir, 'authors/id', $id) : 
         $src_dir;
@@ -935,7 +930,7 @@ sub fetch_file {
       }
     }
   }
-  return $to unless $to =~ /$ext$/;
+  return $to unless $to =~ /$PPM::Make::Util::ext$/;
   my $cksum;
   unless ($cksum = load_cs($CS)) {
     $self->{fetch_error} = qq{Checksums check disabled - cannot load $CS file.};

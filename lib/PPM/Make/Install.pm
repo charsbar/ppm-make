@@ -11,7 +11,6 @@ use Cwd;
 require File::Spec;
 
 our $VERSION = '0.9902';
-my $fetch_error;
 
 sub new {
   my ($class, %opts) = @_;

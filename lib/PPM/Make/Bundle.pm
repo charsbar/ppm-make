@@ -13,16 +13,12 @@ use PPM::Make::Search;
 
 our $VERSION = '0.9902';
 
-my @cpan_mirrors = url_list();
-my $protocol = qr{^(http|ftp)://};
-my $ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
-
 sub new {
   my ($class, %opts) = @_;
 
   my $bundle_name = delete $opts{bundle_name};
   if ($bundle_name) {
-    $bundle_name =~ s{$ext$}{} if $bundle_name;
+    $bundle_name =~ s{$PPM::Make::Util::ext$}{} if $bundle_name;
     $bundle_name .= '.zip';
   }
 
@@ -77,7 +73,7 @@ sub make_package {
   my ($self, $dist, $info) = @_;
 
   my ($dist_name, $cpan_file);
-  if ($dist and $dist !~ /$ext$/) {
+  if ($dist and $dist !~ /$PPM::Make::Util::ext$/) {
     return 1 if (defined $self->{files}->{$dist} or is_ap_core($dist));
     $info = $self->get_info($dist) unless ($info and (ref($info) eq 'HASH'));
     $dist_name = $info->{dist_name};
@@ -88,13 +84,14 @@ sub make_package {
     (not $dist and (-e 'Makefile.PL' || -e 'Build.PL')) and do {
       last TRY if ($name = $self->from_cpan());
     };
-    ($dist =~ /$ext$/) and do {
+    ($dist =~ /$PPM::Make::Util::ext$/) and do {
       last TRY if ($name = $self->from_cpan($dist));
     };
     ($dist_name) and do {
       last TRY if ($name = $self->from_repository($dist_name));
     };
     ($cpan_file) and do {
+      my @cpan_mirrors = url_list();
       my $url = $cpan_mirrors[0] . '/authors/id/' . $cpan_file;
       last TRY if ($name = $self->from_cpan($url));
     };
@@ -113,7 +110,7 @@ sub make_package {
 
 sub get_info {
   my ($self, $dist) = @_;
-  return if (-f $dist or $dist =~ /^$protocol/ or $dist =~ /$ext$/);
+  return if (-f $dist or $dist =~ /^$PPM::Make::Util::protocol/ or $dist =~ /$PPM::Make::Util::ext$/);
   my $search = $self->{search};
   $dist =~ s{::}{-}g;
   {
@@ -173,7 +170,7 @@ sub from_cpan {
 
 sub from_repository {
   my ($self, $pack) = @_;
-  return if (-f $pack or $pack =~ /^$protocol/ or $pack =~ /$ext$/);
+  return if (-f $pack or $pack =~ /^$PPM::Make::Util::protocol/ or $pack =~ /$PPM::Make::Util::ext$/);
   my $cwd = $self->{build_dir};
   $pack =~ s/::/-/g;
   my $reps = $self->{opts}->{reps};
@@ -186,7 +183,7 @@ sub from_repository {
   my $arch = $self->{arch};
   my ($url, $ppd_remote, $info);
   foreach my $item (@reps) {
-    if ($item !~ /^$protocol/) {
+    if ($item !~ /^$PPM::Make::Util::protocol/) {
       $ppd_remote = catfile($item, $ppd_local);
       if (-f $ppd_remote) {
         copy($ppd_remote, $ppd_local) or do {
@@ -225,11 +222,11 @@ sub from_repository {
 
   my $codebase = $info->{CODEBASE}->{HREF};
   (my $ar_local = $codebase) =~ s{.*?/([^/]+)$}{$1};
-  if ($codebase =~ /^$protocol/) {
+  if ($codebase =~ /^$PPM::Make::Util::protocol/) {
     my $ar_remote = $codebase;
     return unless mirror($ar_remote, $ar_local);
   }
-  elsif ($url !~ /^$protocol/) {
+  elsif ($url !~ /^$PPM::Make::Util::protocol/) {
     my $ar_remote = catfile($url, $codebase);
     if (-f $ar_remote) {
       copy($ar_remote, $ar_local) or do {
@@ -276,6 +273,7 @@ sub fetch_prereqs {
     if (scalar @prereqs > 0) {
       my $matches = $search->search(\@prereqs, mode => 'mod');
       if ($matches and (ref($matches) eq 'HASH')) {
+        my @cpan_mirrors = url_list();
         foreach my $mod(keys %$matches) {
             next if is_ap_core($matches->{$mod}->{dist_name});
             print qq{\nFetching prerequisite "$mod"\n};

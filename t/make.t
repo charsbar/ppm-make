@@ -5,7 +5,7 @@
 #########################
 
 # change 'tests => 1' to 'tests => last_test_to_print';
-use Test;
+use Test::More;
 use strict;
 use Cwd;
 my $cwd = getcwd;
@@ -33,7 +33,7 @@ for ($ppd, $tgz, "t/$ppd", "t/$tgz") {
     ok(1);
   }
   else {
-    ok(qq{'$_' not created}, 1);
+    is(qq{'$_' not created}, 1);
   }
 }
 
@@ -41,19 +41,19 @@ my $author = q{Randy Kobes <r.kobes@uwinnipeg.ca>};
 my $abstract = q{Make a ppm package from a CPAN distribution};
 my $d = PPM::Make::parse_ppd($ppd);
 ok($d);
-ok($d->{SOFTPKG}->{NAME}, $name);
-ok($d->{TITLE}, $name);
-ok($d->{ABSTRACT}, $abstract);
-ok($d->{AUTHOR}, $author);
-ok($d->{OS}->{NAME}, $Config{osname});
+is($d->{SOFTPKG}->{NAME}, $name);
+is($d->{TITLE}, $name);
+is($d->{ABSTRACT}, $abstract);
+is($d->{AUTHOR}, $author);
+is($d->{OS}->{NAME}, $Config{osname});
 my $arch = $Config{archname};
 if ($] >= 5.008) {
    my $vstring = sprintf "%vd", $^V;
    $vstring =~ s/\.\d+$//;
    $arch .= "-$vstring";
 }
-ok($d->{ARCHITECTURE}->{NAME}, $arch);
-ok($d->{CODEBASE}->{HREF}, $tgz); 
+is($d->{ARCHITECTURE}->{NAME}, $arch);
+is($d->{CODEBASE}->{HREF}, $tgz); 
 
 my $provides = $d->{PROVIDE};
 ok($provides);
@@ -103,7 +103,7 @@ else {
   close(TGZ) or die "$!\n";;
 }
 
-ok($#f, $#files);
+is($#f, $#files);
 unlink ($ppd, $tgz, "t/$ppd", "t/$tgz");
 $arch = 'c-wren';
 my $url = 'http://www.disney.com/ppmpackages/';
@@ -119,21 +119,21 @@ for ($ppd, $tgz) {
     ok(1);
   }
   else {
-    ok(qq{'$_' not created}, 1);
+    is(qq{'$_' not created}, 1);
   }
 }
 
 $d = PPM::Make::parse_ppd($ppd);
 ok($d);
-ok($d->{SOFTPKG}->{NAME}, $name);
-ok($d->{TITLE}, $name);
-ok($d->{ABSTRACT}, $abstract);
-ok($d->{AUTHOR}, $author);
-ok($d->{OS}->{NAME}, $Config{osname});
-ok($d->{ARCHITECTURE}->{NAME}, $arch);
-ok($d->{CODEBASE}->{HREF}, $url . $arch . '/' . $tgz); 
-ok($d->{INSTALL}->{SCRIPT}, $script);
-ok($d->{INSTALL}->{EXEC}, $exec);
+is($d->{SOFTPKG}->{NAME}, $name);
+is($d->{TITLE}, $name);
+is($d->{ABSTRACT}, $abstract);
+is($d->{AUTHOR}, $author);
+is($d->{OS}->{NAME}, $Config{osname});
+is($d->{ARCHITECTURE}->{NAME}, $arch);
+is($d->{CODEBASE}->{HREF}, $url . $arch . '/' . $tgz); 
+is($d->{INSTALL}->{SCRIPT}, $script);
+is($d->{INSTALL}->{EXEC}, $exec);
 
 @f = ();
 @files = ();
@@ -163,5 +163,5 @@ else {
   }
   close(TGZ) or die "$!\n";;
 }
-ok($#f+1, $#files);
+is($#f+1, $#files);
 unlink ($ppd, $tgz);

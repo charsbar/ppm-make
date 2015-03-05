@@ -5,7 +5,7 @@
 #########################
 
 # change 'tests => 1' to 'tests => last_test_to_print';
-use Test;
+use Test::More;
 use strict;
 use Cwd;
 use File::Spec;
@@ -23,7 +23,7 @@ for my $dir(qw(PPMPackages ppms)) {
   my $rep = File::Spec->catdir($cwd, 't', $dir);
   ok (-d $rep);
   my $obj = PPM::Make::RepositorySummary->new(rep => $rep);
-  ok(ref($obj), 'PPM::Make::RepositorySummary');
+  is(ref($obj), 'PPM::Make::RepositorySummary');
   $obj->summary();
 
   for my $file(qw(package.lst summary.ppm searchsummary.ppm package.xml)) {
@@ -31,7 +31,7 @@ for my $dir(qw(PPMPackages ppms)) {
     my $expected = File::Spec->catfile($rep, 'cmp_' . $file);
     my ($expected_received, $expected_expected) =
       expected_sizes($expected, $received);
-    ok($expected_received, $expected_expected);
+    is($expected_received, $expected_expected);
     unlink($received);
   }
 }

@@ -5,7 +5,7 @@
 #########################
 
 # change 'tests => 1' to 'tests => last_test_to_print';
-use Test;
+use Test::More;
 use strict;
 use Cwd;
 require File::Spec;
@@ -36,7 +36,7 @@ foreach my $arch (keys %exts) {
 				      dist => 'AppConfig',
 				      arch => $arch);
   ok($bundle);
-  ok(ref($bundle), 'PPM::Make::Bundle');
+  is(ref($bundle), 'PPM::Make::Bundle');
   $bundle->make_bundle();
   my $build_dir = $bundle->{build_dir};
   ok(-d $build_dir);
@@ -44,14 +44,14 @@ foreach my $arch (keys %exts) {
     my $remote = File::Spec->catfile($build_dir, "$ppd.orig");
     my $local = File::Spec->catfile($cwd, 't', 'ppms', $ppd);
     ok(-f $remote);
-    ok(-s $remote, -s $local);
+    is(-s $remote, -s $local);
   }
   for my $tgz (@tgz_base) {
     my $ar = $tgz . '-' . $exts{$arch} . '.tar.gz';
     my $remote = File::Spec->catfile($build_dir, $ar);
     my $local = File::Spec->catfile($cwd, 't', 'ppms', $ar);
     ok(-f $remote);
-    ok(-s $remote, -s $local);
+    is(-s $remote, -s $local);
   }
   my $zipdist = File::Spec->catfile($cwd, 'Bundle-AppConfig.zip');
   ok(-f $zipdist);

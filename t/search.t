@@ -1,4 +1,4 @@
-use Test;
+use Test::More;
 use strict;
 BEGIN { plan tests => 23 };
 use PPM::Make::Search;
@@ -6,7 +6,7 @@ ok(1); # If we made it this far, we're ok.
 
 my $search = PPM::Make::Search->new();
 ok($search);
-ok(ref($search), 'PPM::Make::Search');
+is(ref($search), 'PPM::Make::Search');
 
 my $dist = 'libnet';
 my $mod = 'Net::FTP';
@@ -18,16 +18,16 @@ foreach my $query( ($dist, $mod) ) {
   my $key = $mode . '_results';
   my $results = $search->{$key};
   ok($results);
-  ok(ref($results), 'HASH');
+  is(ref($results), 'HASH');
   my $info = $results->{$query};
   ok($info);
-  ok(ref($info), 'HASH'); 
-  ok($info->{dist_name}, $dist);
+  is(ref($info), 'HASH'); 
+  is($info->{dist_name}, $dist);
   ok($info->{author} =~ /\w+/);
   ok($info->{cpanid} =~ /\w+/);
   ok($info->{dist_file} =~ /$dist/);
   if ($mode eq 'mod') {
-    ok($info->{mod_name}, $query);
+    is($info->{mod_name}, $query);
     ok($info->{mod_vers} > 0);
 
   }

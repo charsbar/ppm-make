@@ -1,0 +1,36 @@
+use strict;
+use warnings;
+use FindBin;
+use Test::More;
+use WorePAN;
+use File::pushd;
+use CPAN::DistnameInfo;
+
+my @test_files = qw(
+  MAUKE/Switch-Plain-0.03.tar.gz
+);
+
+my $tmpdir = "$FindBin::Bin/tmp";
+
+for my $file (@test_files) {
+  my $dist = CPAN::DistnameInfo->new($file)->dist;
+  my $worepan = WorePAN->new(
+    root => "$tmpdir/mirror",
+    files => [$file],
+    no_network => 0,
+    no_indices => 1,
+    cleanup => 1,
+    use_backpan => 1,
+  );
+
+  $worepan->walk(callback => sub {
+    my $dir = shift;
+    my $guard = pushd $dir;
+    ok !system("cpanm -L$tmpdir/local --installdeps ."), "installed dependencies for $dist";
+    ok !system("$^X -I$tmpdir/local -I$FindBin::Bin/../lib $FindBin::Bin/../bin/make_ppm"), "made ppm files for $dist";
+    ok -f "$dir/$dist.ppd", "$dist.ppd exists";
+    ok -f "$dir/$dist.tar.gz", "$dist.tar.gz exists";
+  });
+}
+
+done_testing;

@@ -27,18 +27,19 @@ foreach my $arch (keys %exts) {
   ok(-d $build_dir);
   for my $ppd (@ppds) {
     my $remote = File::Spec->catfile($build_dir, "$ppd.orig");
-    my $local = File::Spec->catfile($cwd, 't', 'ppms', $ppd);
+    my $local = File::Spec->catfile($FindBin::Bin, 'ppms', $ppd);
     ok(-f $remote);
     is(-s $remote, -s $local);
   }
   for my $tgz (@tgz_base) {
     my $ar = $tgz . '-' . $exts{$arch} . '.tar.gz';
     my $remote = File::Spec->catfile($build_dir, $ar);
-    my $local = File::Spec->catfile($cwd, 't', 'ppms', $ar);
+    my $local = File::Spec->catfile($FindBin::Bin, 'ppms', $ar);
     ok(-f $remote);
     is(-s $remote, -s $local);
   }
-  my $zipdist = File::Spec->catfile($cwd, 'Bundle-AppConfig.zip');
+  my $zipdist = File::Spec->catfile('Bundle-AppConfig.zip');
+
   ok(-f $zipdist);
   unlink ($zipdist);
   rmtree($build_dir, 1, 1) if (defined $build_dir and -d $build_dir);

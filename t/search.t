@@ -1,6 +1,5 @@
 use Test::More;
 use strict;
-BEGIN { plan tests => 23 };
 use PPM::Make::Search;
 ok(1); # If we made it this far, we're ok.
 
@@ -45,4 +44,4 @@ foreach my $query( ($dist, $mod) ) {
   }
 }
 
-
+done_testing;

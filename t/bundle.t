@@ -1,10 +1,8 @@
-# change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
 use FindBin;
 require File::Spec;
 use File::Path;
-BEGIN { plan tests => 42 };
 use PPM::Make::Bundle;
 use Config;
 ok(1); # If we made it this far, we're ok.
@@ -51,3 +49,5 @@ foreach my $arch (keys %exts) {
   unlink ($zipdist);
   rmtree($build_dir, 1, 1) if (defined $build_dir and -d $build_dir);
 }
+
+done_testing;

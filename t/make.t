@@ -1,8 +1,6 @@
-# change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
 use FindBin;
-BEGIN { plan tests => 44 };
 use PPM::Make;
 use Config;
 use File::Path;
@@ -158,3 +156,5 @@ else {
 }
 is($#f+1, $#files);
 unlink ($ppd, $tgz);
+
+done_testing;

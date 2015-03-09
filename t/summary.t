@@ -1,9 +1,7 @@
-# change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
 use FindBin;
 use File::Spec;
-BEGIN { plan tests => 13 };
 use PPM::Make::RepositorySummary;
 ok(1); # If we made it this far, we're ok.
 
@@ -28,6 +26,8 @@ for my $dir(qw(PPMPackages ppms)) {
     unlink($received);
   }
 }
+
+done_testing;
 
 # compares the sizes of two files, disregarding
 # possible \r differences between them,

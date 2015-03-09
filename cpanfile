@@ -15,5 +15,5 @@ requires 'XML::Writer' => 0;
 requires 'version'  => 0;
 
 on test => sub {
-  requires 'Test::More' => 0.47;
+  requires 'Test::More' => 0.88;
 };

@@ -1,8 +1,6 @@
-# change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
 use FindBin;
-BEGIN { plan tests => 22 };
 use PPM::Make;
 use Config;
 use File::Path;
@@ -47,3 +45,4 @@ is( $opts->{vs}, 0);
 is( $opts->{upload}->{ppd}, '/another/path');
 is( $opts->{upload}->{user}, 'lianne');
 
+done_testing;

@@ -7,10 +7,9 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
-use Cwd;
+use FindBin;
 require File::Spec;
 use File::Path;
-my $cwd = getcwd;
 BEGIN { plan tests => 42 };
 use PPM::Make::Bundle;
 use Config;
@@ -28,7 +27,7 @@ my @tgz_base = qw(AppConfig-1.63 File-HomeDir-0.58
 my %exts = ('MSWin32-x86-multi-thread-5.8' => 'PPM58',
 	    'MSWin32-x86-multi-thread' => 'PPM56');
 
-my $rep = File::Spec->catdir($cwd, 't', 'ppms');
+my $rep = File::Spec->catdir($FindBin::Bin, 'ppms');
 ok(-d $rep);
 foreach my $arch (keys %exts) {
   my $bundle = PPM::Make::Bundle->new(no_cfg => 1, 

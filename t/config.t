@@ -7,8 +7,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
-use Cwd;
-my $cwd = getcwd;
+use FindBin;
 BEGIN { plan tests => 22 };
 use PPM::Make;
 use Config;
@@ -22,7 +21,7 @@ ok(1); # If we made it this far, we're ok.
 # its man page ( perldoc Test ) for help writing this test script.
 
 
-$ENV{PPM_CFG} = "$cwd/t/ppm.cfg";
+$ENV{PPM_CFG} = "$FindBin::Bin/ppm.cfg";
 my $ppm = PPM::Make->new(arch => 'foo');
 ok($ppm);
 is(ref($ppm), 'PPM::Make');

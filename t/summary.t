@@ -7,9 +7,8 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
-use Cwd;
+use FindBin;
 use File::Spec;
-my $cwd = getcwd;
 BEGIN { plan tests => 13 };
 use PPM::Make::RepositorySummary;
 ok(1); # If we made it this far, we're ok.
@@ -20,7 +19,7 @@ ok(1); # If we made it this far, we're ok.
 # its man page ( perldoc Test ) for help writing this test script.
 
 for my $dir(qw(PPMPackages ppms)) {
-  my $rep = File::Spec->catdir($cwd, 't', $dir);
+  my $rep = File::Spec->catdir($FindBin::Bin, $dir);
   ok (-d $rep);
   my $obj = PPM::Make::RepositorySummary->new(rep => $rep);
   is(ref($obj), 'PPM::Make::RepositorySummary');

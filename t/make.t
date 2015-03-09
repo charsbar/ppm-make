@@ -7,8 +7,7 @@
 # change 'tests => 1' to 'tests => last_test_to_print';
 use Test::More;
 use strict;
-use Cwd;
-my $cwd = getcwd;
+use FindBin;
 BEGIN { plan tests => 44 };
 use PPM::Make;
 use Config;
@@ -21,7 +20,7 @@ ok(1); # If we made it this far, we're ok.
 # Insert your test code below, the Test module is use()ed here so read
 # its man page ( perldoc Test ) for help writing this test script.
 
-my $ppm = PPM::Make->new(upload => {ppd => "$cwd/t"}, no_cfg => 1);
+my $ppm = PPM::Make->new(upload => {ppd => $FindBin::Bin}, no_cfg => 1);
 ok($ppm);
 my $name = 'PPM-Make';
 my $ppd = $name . '.ppd';

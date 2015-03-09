@@ -64,7 +64,7 @@ sub expected_sizes {
 sub is_dosish {
   my $file = shift;
   my ($is_dosish, $lines);
-  open(my $fh, $file) or die qq{Cannot open $file: $!};
+  open(my $fh, '<', $file) or die qq{Cannot open $file: $!};
   binmode($fh);
   while (my $line = <$fh>) {
     unless ($is_dosish) {

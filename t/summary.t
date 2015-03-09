@@ -3,12 +3,6 @@ use strict;
 use FindBin;
 use File::Spec;
 use PPM::Make::RepositorySummary;
-ok(1); # If we made it this far, we're ok.
-
-#########################
-
-# Insert your test code below, the Test module is use()ed here so read
-# its man page ( perldoc Test ) for help writing this test script.
 
 for my $dir(qw(PPMPackages ppms)) {
   my $rep = File::Spec->catdir($FindBin::Bin, $dir);

@@ -1,7 +1,6 @@
 use Test::More;
 use strict;
 use PPM::Make::Search;
-ok(1); # If we made it this far, we're ok.
 
 my $search = PPM::Make::Search->new();
 ok($search);

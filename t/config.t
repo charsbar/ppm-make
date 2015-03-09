@@ -5,13 +5,6 @@ use PPM::Make;
 use Config;
 use File::Path;
 use File::Find;
-ok(1); # If we made it this far, we're ok.
-
-#########################
-
-# Insert your test code below, the Test module is use()ed here so read
-# its man page ( perldoc Test ) for help writing this test script.
-
 
 $ENV{PPM_CFG} = "$FindBin::Bin/ppm.cfg";
 my $ppm = PPM::Make->new(arch => 'foo');
@@ -38,7 +31,7 @@ is( $opts->{binary}, 'http://www.foo.com/bar');
 is( $opts->{vs}, 1);
 is( $opts->{upload}->{host}, undef);
 $ppm = PPM::Make->new(arch => 'foo', vs => 0, binary => 'http://localhost',
-		     upload => {ppd => '/another/path', user => 'lianne'});
+                      upload => {ppd => '/another/path', user => 'lianne'});
 $opts = $ppm->{opts};
 is( $opts->{binary}, 'http://localhost');
 is( $opts->{vs}, 0);

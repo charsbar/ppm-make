@@ -5,3 +5,4 @@ MYMETA.*
 *.old
 *.bak
 *.tmp
+/xt/tmp

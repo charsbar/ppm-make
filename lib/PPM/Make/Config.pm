@@ -127,7 +127,7 @@ require Win32 if WIN32;
 
 our (@EXPORT_OK, %EXPORT_TAGS);
 my @exports = qw(check_opts arch_and_os get_cfg_file read_cfg merge_opts
-                 what_have_you fetch_nmake which $ERROR
+                 what_have_you which $ERROR
                  WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
 %EXPORT_TAGS = (all => [@exports]);
 @EXPORT_OK = (@exports);

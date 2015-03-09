@@ -153,6 +153,7 @@ sub parse_make {
     next if /^#\s+MAN3PODS => /;
     chomp;
     s/^#*\s+// or next;
+    next unless /^(?:$re)\s*\=\>/o;
     push @lines, $_;
   }
   close($fh);

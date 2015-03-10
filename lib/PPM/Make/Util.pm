@@ -39,7 +39,7 @@ $ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
 my @exports = qw(load_cs verifyMD5 parse_version $ERROR
                  is_core is_ap_core url_list
                  parse_ppd parse_abstract
-                 ppd2cpan_version cpan2ppd_version tempfile
+                 ppd2cpan_version cpan2ppd_version
                  file_to_dist cpan_file fix_path
                  mirror
                  $src_dir $build_dir @url_list);
@@ -496,20 +496,6 @@ sub src_and_build {
     $src_dir = File::Spec->tmpdir() || '.';
     $build_dir = $src_dir;
   }
-}
-
-=item tempfile
-
-Generates the name of a random temporary file.
-
-  my $tmpfile = tempfile;
-
-=cut
-
-sub tempfile {
-  my $rand = int(rand $$);
-  return File::Spec->catfile(File::Spec->tmpdir(), 
-                             'ppm-make.' . $rand);
 }
 
 =item parse_version

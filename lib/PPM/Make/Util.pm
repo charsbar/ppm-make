@@ -38,7 +38,7 @@ $ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
 
 my @exports = qw(load_cs verifyMD5 parse_version $ERROR
                  is_core is_ap_core url_list
-                 trim parse_ppd parse_abstract
+                 parse_ppd parse_abstract
                  ppd2cpan_version cpan2ppd_version tempfile
                  file_to_dist cpan_file fix_path
                  mirror
@@ -202,23 +202,6 @@ sub is_ap_core {
   return unless defined $p;
   return defined $ap_core{$p} ? 1 : 0;
 }
-
-=item trim
-
-Trims white space.
-
-  my $string = '    This is a sentence.   ';
-  my $trimmed = trim($string);
-
-=cut
-
-sub trim {
-  local $_ = shift;
-  s/^\s*//;
-  s/\s*$//;
-  return $_;
-}
-
 
 =item file_to_dist
 

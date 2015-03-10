@@ -2,9 +2,6 @@ use Test::More;
 use strict;
 use FindBin;
 use PPM::Make;
-use Config;
-use File::Path;
-use File::Find;
 
 $ENV{PPM_CFG} = "$FindBin::Bin/ppm.cfg";
 my $ppm = PPM::Make->new(arch => 'foo');

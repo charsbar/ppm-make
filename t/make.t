@@ -3,7 +3,6 @@ use strict;
 use FindBin;
 use PPM::Make;
 use Config;
-use File::Path;
 use File::Find;
 
 my $ppm = PPM::Make->new(upload => {ppd => $FindBin::Bin}, no_cfg => 1);

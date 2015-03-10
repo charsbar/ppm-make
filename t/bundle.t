@@ -1,10 +1,9 @@
 use Test::More;
 use strict;
 use FindBin;
-require File::Spec;
+use File::Spec;
 use File::Path;
 use PPM::Make::Bundle;
-use Config;
 
 my @ppds = qw(AppConfig.ppd File-HomeDir.ppd
              Win32-TieRegistry.ppd Win32API-Registry.ppd);

@@ -9,7 +9,7 @@ use Digest::MD5;
 use Config;
 use CPAN::DistnameInfo;
 use File::Spec;
-use PPM::Make::Config qw(WIN32 HAS_CPAN HAS_PPM HAS_MB ACTIVEPERL);
+use PPM::Make::Config qw(WIN32 HAS_CPAN ACTIVEPERL);
 use HTTP::Tiny;
 
 =head1 NAME

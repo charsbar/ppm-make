@@ -1,5 +1,11 @@
 Revision history for Perl extension PPM::Make.
 
+0.9903 2016-06-02
+  - Resolved RT #102518 (confused Makefile parser) and
+    RT #114769 (SHA256 checksum), both by Ralf Neubauer
+  - removed unused modules and other minor cleanup
+  - switched to Test::More
+
 0.9902 2014-08-03
   - not to depend on dead services at theoryx5 (RT #97053)
   - use XML::Writer to write ppd/xml files

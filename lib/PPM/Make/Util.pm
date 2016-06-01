@@ -28,7 +28,7 @@ This module contains a number of utility functions used by PPM::Make.
 
 =cut
 
-our $VERSION = '0.9902';
+our $VERSION = '0.9903';
 
 our (@EXPORT_OK, %EXPORT_TAGS, $protocol, $ext, $src_dir, $build_dir,
      @url_list, $ERROR);

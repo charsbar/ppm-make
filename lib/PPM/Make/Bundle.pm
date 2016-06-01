@@ -11,7 +11,7 @@ use PPM::Make::Util qw(:all);
 use PPM::Make::Config qw(:all);
 use PPM::Make::Search;
 
-our $VERSION = '0.9902';
+our $VERSION = '0.9903';
 
 sub new {
   my ($class, %opts) = @_;

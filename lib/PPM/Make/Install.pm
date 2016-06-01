@@ -10,7 +10,7 @@ use Config;
 use Cwd;
 require File::Spec;
 
-our $VERSION = '0.9902';
+our $VERSION = '0.9903';
 
 sub new {
   my ($class, %opts) = @_;

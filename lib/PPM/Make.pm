@@ -17,7 +17,7 @@ use Pod::Html;
 use XML::Writer;
 use version;
 
-our $VERSION = '0.9902';
+our $VERSION = '0.9903';
 
 sub new {
   my ($class, %opts) = @_;

@@ -36,7 +36,7 @@ $protocol = qr{^(http|ftp)://};
 $ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
 @url_list = url_list();
 
-my @exports = qw(load_cs verifyMD5 parse_version $ERROR
+my @exports = qw(load_cs verifyMD5 verifySHA256 parse_version $ERROR
                  is_core is_ap_core url_list
                  parse_ppd parse_abstract
                  ppd2cpan_version cpan2ppd_version
@@ -157,7 +157,50 @@ sub verifyMD5 {
   close $fh;
   if ($should = $cksum->{$file}->{md5}) {
     my $test = ($is eq $should);
+    if (!$test && ($should = $cksum->{$file}->{'md5-ungz'})) {
+      $test = ($is eq $should);
+    }
     printf qq{  Checksum for "$file" is %s\n}, 
+      ($test) ? 'OK.' : 'NOT OK.';
+    return $test;
+  }
+  else {
+    $ERROR = qq{Checksum data for "$file" not present.};
+    return;
+  }
+}
+
+=item verifySHA256
+
+Verify a CHECKSUM for a $file
+
+   my $ok = verifySHA256($cksum, $file);
+   print "$file checked out OK" if $ok;
+
+=cut
+
+sub verifySHA256 {
+  my ($cksum, $file) = @_;
+  my ($is, $should);
+  open (my $fh, '<', $file);
+  unless ($fh) {
+    $ERROR = qq{Cannot open "$file": $!};
+    return;
+  }
+  require Digest::SHA;
+  binmode($fh);
+  unless ($is = Digest::SHA->new(256)->addfile($fh)->hexdigest) {
+    $ERROR = qq{Could not compute checksum for "$file": $!};
+    close $fh;
+    return;
+  }
+  close $fh;
+  if ($should = $cksum->{$file}->{sha256}) {
+    my $test = ($is eq $should);
+    if (!$test && ($should = $cksum->{$file}->{'sha256-ungz'})) {
+      $test = ($is eq $should);
+    }
+    printf qq{  SHA256-Checksum for "$file" is %s\n},
       ($test) ? 'OK.' : 'NOT OK.';
     return $test;
   }

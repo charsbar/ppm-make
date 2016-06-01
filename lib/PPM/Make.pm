@@ -936,7 +936,7 @@ sub fetch_file {
     $self->{fetch_error} = qq{Checksums check disabled - cannot load $CS file.};
     return;
   }
-  unless (verifyMD5($cksum, $to)) {
+  unless (verifyMD5($cksum, $to) || verifySHA256($cksum, $to)) {
     $self->{fetch_error} =  qq{Checksums check for "$to" failed.};
     return;
   }

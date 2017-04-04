@@ -220,6 +220,12 @@ sub extract_dist {
         system(@args) == 0 or die "@args failed: $?";
         last EXTRACT;
       };
+      ($tar) && do {
+        my @args = ($tar, 'xvf', $file);
+        print "@args\n";
+        system(@args) == 0 or die "@args failed: $?";
+        last EXTRACT;
+      };
     }
     die "Cannot extract $file";
   }

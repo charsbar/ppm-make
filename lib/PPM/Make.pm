@@ -214,7 +214,7 @@ sub extract_dist {
         $arc->extract($arc->list_files);
         last EXTRACT;
       };
-      ($tar and $gzip) && do {
+      ($tar and $gzip and $suffix !~ /bz2$/) && do {
         my @args = ($gzip, '-dc', $file, '|', $tar, 'xvf', '-');
         print "@args\n";
         system(@args) == 0 or die "@args failed: $?";

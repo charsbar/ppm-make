@@ -314,8 +314,7 @@ sub what_have_you {
     $has{tar} = $progs->{tar};
     $has{gzip} = $progs->{gzip};
   }
-  elsif ((not WIN32 and 
-          (not $os or $os =~ /Win32/i or not $arch or $arch =~ /Win32/i))) {
+  elsif (not WIN32) {
     $has{tar} = 
       $Config{tar} || which('tar') || $CPAN::Config->{tar};
     $has{gzip} =

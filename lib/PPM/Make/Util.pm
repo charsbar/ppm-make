@@ -33,7 +33,7 @@ our $VERSION = '0.9903';
 our (@EXPORT_OK, %EXPORT_TAGS, $protocol, $ext, $src_dir, $build_dir,
      @url_list, $ERROR);
 $protocol = qr{^(http|ftp)://};
-$ext = qr{\.(tar\.gz|tgz|tar\.Z|zip)};
+$ext = qr{\.(tar\.gz|tar\.bz2|tgz|tar\.Z|zip)};
 @url_list = url_list();
 
 my @exports = qw(load_cs verifyMD5 verifySHA256 parse_version $ERROR

@@ -29,7 +29,7 @@ sub meta {
   if ($mb and -d '_build') {
     $self->parse_build();
   }
-  else {
+  elsif (!$mb) { # ignore Module::Build::Tiny
 #    $self->parse_makepl();
     $self->parse_make();
   }

@@ -2,7 +2,7 @@ package PPM::Make::RepositorySummary;
 
 use strict;
 use warnings;
-use PPM::Make::Util qw(parse_ppd ppd2cpan_version);
+use PPM::Make::Util qw(parse_ppd ppd2cpan_version encode_non_ascii_chars);
 use File::Copy;
 use XML::Writer;
 
@@ -101,7 +101,7 @@ sub summary_softpkg {
   my ($writer, $d) = @_;
   $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
   for (qw/TITLE ABSTRACT AUTHOR/) {
-    $writer->dataElement($_ => $d->{$_});
+    $writer->dataElement($_ => encode_non_ascii_chars($d->{$_}));
   }
   $writer->endTag('SOFTPKG');
   return 1;
@@ -111,7 +111,7 @@ sub searchsummary_softpkg {
   my ($writer, $d) = @_;
   $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
   for (qw/TITLE ABSTRACT AUTHOR/) {
-    $writer->dataElement($_ => $d->{$_});
+    $writer->dataElement($_ => encode_non_ascii_chars($d->{$_}));
   }
   my $imp = $d->{IMPLEMENTATION};
   foreach my $item(@$imp) {
@@ -127,7 +127,7 @@ sub package_lst_softpkg {
   my ($writer, $d) = @_;
   $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
   for (qw/TITLE ABSTRACT AUTHOR/) {
-    $writer->dataElement($_ => $d->{$_});
+    $writer->dataElement($_ => encode_non_ascii_chars($d->{$_}));
   }
   my $imp = $d->{IMPLEMENTATION};
   foreach my $item(@$imp) {
@@ -164,7 +164,7 @@ sub package_xml_softpkg {
   my $s_version = ppd2cpan_version($d->{SOFTPKG}->{VERSION});
   $writer->startTag('SOFTPKG' => NAME => $d->{SOFTPKG}->{NAME}, VERSION => $s_version);
   for (qw/ABSTRACT AUTHOR/) {
-    $writer->dataElement($_ => $d->{$_});
+    $writer->dataElement($_ => encode_non_ascii_chars($d->{$_}));
   }
   my $imp = $d->{IMPLEMENTATION};
   my $size = scalar @$imp;

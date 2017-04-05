@@ -630,9 +630,9 @@ sub print_ppd {
   # weird hack to eliminate an empty line after the XML declaration
   $writer->startTag('SOFTPKG', NAME => $d->{SOFTPKG}->{NAME}, VERSION => $d->{SOFTPKG}->{VERSION});
   $writer->setDataMode(1);
-  $writer->dataElement(TITLE => $d->{TITLE});
-  $writer->dataElement(ABSTRACT => $d->{ABSTRACT});
-  $writer->dataElement(AUTHOR => $d->{AUTHOR});
+  $writer->dataElement(TITLE => encode_non_ascii_chars($d->{TITLE}));
+  $writer->dataElement(ABSTRACT => encode_non_ascii_chars($d->{ABSTRACT}));
+  $writer->dataElement(AUTHOR => encode_non_ascii_chars($d->{AUTHOR}));
   $writer->startTag('IMPLEMENTATION');
 
   foreach (sort keys %{$d->{DEPENDENCY}}) {

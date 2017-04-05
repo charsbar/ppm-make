@@ -11,6 +11,7 @@ use CPAN::DistnameInfo;
 use File::Spec;
 use PPM::Make::Config qw(WIN32 HAS_CPAN ACTIVEPERL);
 use HTTP::Tiny;
+use HTML::Entities;
 
 =head1 NAME
 
@@ -41,7 +42,7 @@ my @exports = qw(load_cs verifyMD5 verifySHA256 parse_version $ERROR
                  parse_ppd parse_abstract
                  ppd2cpan_version cpan2ppd_version
                  file_to_dist cpan_file fix_path
-                 mirror
+                 mirror encode_non_ascii_chars
                  $src_dir $build_dir @url_list);
 
 %EXPORT_TAGS = (all => [@exports]);
@@ -669,6 +670,19 @@ sub mirror {
   my $ua = HTTP::Tiny->new(agent => "PPM-Make/$VERSION");
   my $res = $ua->mirror($url, $file);
   $res->{success} ? 1 : 0;
+}
+
+=item encode_non_ascii_chars
+
+Encodes non-ascii characters.
+
+  my $encoded = encode_non_ascii_chars($non_ascii_string);
+
+=cut
+
+sub encode_non_ascii_chars {
+  my $string = shift;
+  HTML::Entities::encode_entities_numeric($string, '^\n\x20-\x25\x26-\x7e');
 }
 
 1;

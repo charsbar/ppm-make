@@ -16,6 +16,7 @@ use Net::FTP;
 use Pod::Html;
 use XML::Writer;
 use version;
+use Parse::LocalDistribution;
 
 our $VERSION = '0.9903';
 
@@ -565,23 +566,20 @@ sub make_ppd {
   }
 
   my $search = $self->{search};
-  {
-    if ($search->search($name, mode => 'dist')) {
-      my $mods = $search->{dist_results}->{$name}->{mods};
-      if ($mods and (ref($mods) eq 'ARRAY')) {
-        foreach my $mod (@$mods) {
-          my $mod_name = $mod->{mod_name};
-          next unless $mod_name;
-          my $mod_vers = $mod->{mod_vers};
-          if ($] < 5.10) {
-            $mod_name .= '::' unless ($mod_name =~ /::/);
-          }
-          push @{$d->{PROVIDE}}, {NAME => $mod_name, VERSION => $mod_vers};
-        }
-      }
+
+  my $parser = Parse::LocalDistribution->new({ALLOW_DEV_VERSION => 1});
+  my $provides = $parser->parse('.');
+  for my $package (keys %{$provides || {}}) {
+    my $name = $package;
+    if ($] < 5.10 and $name !~ /::/) {
+      $name .= '::';
     }
-    else {
-      $search->search_error(qq{Cannot obtain the modules that '$name' provides});
+    my $version = $provides->{$package}{version};
+    $version = undef if defined $version and $version eq 'undef';
+    if ($version) {
+      push @{$d->{PROVIDE}}, {NAME => $name, VERSION => $version};
+    } else {
+      push @{$d->{PROVIDE}}, {NAME => $name};
     }
   }
   my $mod_ref;

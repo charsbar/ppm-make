@@ -9,6 +9,7 @@ requires 'File::HomeDir' => 0.52;
 requires 'File::Spec' => 0;
 requires 'Getopt::Long' => 2.33;
 requires 'HTTP::Tiny' => 0;
+requires 'Parse::LocalDistribution' => '0.19';
 requires 'Pod::Find' => 0.23;
 requires 'Pod::Usage' => 1;
 requires 'XML::Parser' => 2;

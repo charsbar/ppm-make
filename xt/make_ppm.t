@@ -29,7 +29,7 @@ for my $file (@test_files) {
   $worepan->walk(callback => sub {
     my $dir = shift;
     my $guard = pushd $dir;
-    ok !system("cpanm -L$tmpdir/local --installdeps ."), "installed dependencies for $dist";
+    ok !system("cpanm -l$tmpdir/local --installdeps ."), "installed dependencies for $dist";
     ok !system("$^X -I$tmpdir/local -I$FindBin::Bin/../lib $FindBin::Bin/../bin/make_ppm"), "made ppm files for $dist";
     my $ppd_file = path("$dir/$dist.ppd");
     my $tarball = path("$dir/$dist.tar.gz");

@@ -146,33 +146,6 @@ sub parse_make {
   return 1;
 }
 
-sub write_makefile {
-  my $self = shift;
-  my $r;
-  my $cwd = $self->{cwd};
-  my $file = 'Makefile.PL';
- MAKE: {
-    local @ARGV;
-    if (my $makepl_arg = $CPAN::Config->{makepl_arg}) {
-      push @ARGV, (split ' ', $makepl_arg);
-    }
-    unless ($r = do "$cwd/$file") {
-      die "Can't parse $file: $@" if $@;
-      die "Can't do $file: $!" unless defined $r;
-      die "Can't run $file" unless $r;
-    }
-  }
-  my @wanted = qw(NAME DISTNAME ABSTRACT ABSTRACT_FROM AUTHOR 
-                  VERSION VERSION_FROM PREREQ_PM);
-  my %wanted;
-  foreach (@wanted) {
-    next unless defined $r->{$_};
-    $wanted{$_} = $r->{$_};
-  }
-  $self->{info} = $r;
-  return 1;
-}
-
 sub abstract {
   my $self = shift;
   my $info = $self->{info};

@@ -8,6 +8,7 @@ requires 'CPAN::Meta::YAML' => 0;
 requires 'File::HomeDir' => 0.52;
 requires 'File::Spec' => 0;
 requires 'Getopt::Long' => 2.33;
+requires 'HTML::Entities';
 requires 'HTTP::Tiny' => 0;
 requires 'Parse::LocalDistribution' => '0.19';
 requires 'Pod::Find' => 0.23;

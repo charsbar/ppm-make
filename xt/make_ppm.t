@@ -6,8 +6,9 @@ use WorePAN;
 use File::pushd;
 use CPAN::DistnameInfo;
 
-my @test_files = qw(
-  MAUKE/Switch-Plain-0.03.tar.gz
+my @test_files = (
+  'MAUKE/Switch-Plain-0.03.tar.gz',
+  'ANDK/File-Rsync-Mirror-Recent-0.4.3.tar.bz2',
 );
 
 my $tmpdir = "$FindBin::Bin/tmp";

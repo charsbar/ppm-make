@@ -30,7 +30,6 @@ sub meta {
     $self->parse_build();
   }
   elsif (!$mb) { # ignore Module::Build::Tiny
-#    $self->parse_makepl();
     $self->parse_make();
   }
   $self->abstract();
@@ -98,37 +97,6 @@ sub parse_yaml {
   foreach (keys %r) {
     next unless $r{$_};
     $self->{info}->{$_} ||= $r{$_};
-  }
-  return 1;
-}
-
-sub parse_makepl {
-  my $self = shift;
-  open(my $fh, '<', 'Makefile.PL') or die "Couldn't open Makefile.PL: $!";
-  my @lines = <$fh>;
-  close $fh;
-  my $makeargs;
-  my $content = join "\n", @lines;
-  $content =~ s!\r!!g;
-  $content =~ m!WriteMakefile(\s*\(.*?\bNAME\b.*?\))\s*;!s;
-  unless ($makeargs = $1) {
-    warn "Couldn't extract WriteMakefile args";
-    return;
-  }
-
-  my $c = new Safe();
-  my %r = $c->reval($makeargs);
-  if ($@) {
-    warn "Eval of Makefile.PL failed: $@";
-    return;
-  }
-  unless ($r{NAME}) {
-    warn "Cannot determine NAME in Makefile.PL";
-    return;
-  }
-  foreach (keys %r) {
-      next unless $r{$_};
-      $self->{info}->{$_} ||= $r{$_};
   }
   return 1;
 }

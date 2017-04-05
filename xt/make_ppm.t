@@ -32,6 +32,8 @@ for my $file (@test_files) {
     ok -f "$dir/$dist.ppd", "$dist.ppd exists";
     ok -f "$dir/$dist.tar.gz", "$dist.tar.gz exists";
   });
+
+  $worepan->root->rmtree;
 }
 
 done_testing;

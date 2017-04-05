@@ -1,5 +1,12 @@
 Revision history for Perl extension PPM::Make.
 
+0.9904 2017-04-05
+  - Resolved
+    - RT #97088 (work around for PROVIDE)
+    - RT #119132 (Non-ASCII in author name)
+    - RT #119133 (.tar.bz2 distributions)
+    - RT #120921 (Module::Build::Tiny support)
+
 0.9903 2016-06-02
   - Resolved RT #102518 (confused Makefile parser) and
     RT #114769 (SHA256 checksum), both by Ralf Neubauer

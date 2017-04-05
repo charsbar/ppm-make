@@ -6,7 +6,7 @@ use PPM::Make::Util qw(parse_ppd ppd2cpan_version encode_non_ascii_chars);
 use File::Copy;
 use XML::Writer;
 
-our $VERSION = '0.9903';
+our $VERSION = '0.9904';
 
 sub new {
   my $class = shift;

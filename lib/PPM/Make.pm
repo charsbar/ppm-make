@@ -18,7 +18,7 @@ use XML::Writer;
 use version;
 use Parse::LocalDistribution;
 
-our $VERSION = '0.9903';
+our $VERSION = '0.9904';
 
 sub new {
   my ($class, %opts) = @_;
